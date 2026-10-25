@@ -16,15 +16,18 @@ Two honest sentences: the lifecycle is deterministic and provably so; ranking is
 | Package | Namespace | What it is |
 | --- | --- | --- |
 | `orion-search/core` | `Orion\` | The ASTs, adapter contracts, lifecycle, outbox, receipts, tenancy seam. PSR interfaces only. |
-| `orion-search/testing` | `Orion\Testing\` | In-memory storage, conformance test cases, fault injection. |
-| `univeros/orion` | `Univeros\Orion\` | The Univeros module: one line in `config/modules.php`. |
+| `orion-search/testing` | `Orion\Testing\` | In-memory storage, the storage and engine conformance test cases. |
+| `orion-search/pdo` | `Orion\Pdo\` | Storage on your PDO connection (PostgreSQL, MySQL, SQLite), table installer. |
+| `orion-search/elasticsearch` | `Orion\Elasticsearch\` | Engine adapter for Elasticsearch 8.19 and 9.x. |
 
-More packages (PDO storage, PSR-15 endpoint, `bin/orion`, the Polaris tenancy bridge, one package per engine)
-are added as their work package starts; see [`docs/spec/revision.md`](docs/spec/revision.md) §1 and §7.
+More packages (PSR-15 endpoint, `bin/orion`, the Polaris tenancy bridge, the Univeros module, Solr, OpenSearch,
+Meilisearch) are added as their work package starts; see [`docs/spec/revision.md`](docs/spec/revision.md) §1 and §7.
 
 ## Status
 
-Work package 0 (repository and QA) is done. Work package 1 (core ASTs, storage port, `Orion::create()`) is next.
+Work packages 0 to 2 are done: the core ASTs and contracts, storage on PDO, the engine conformance suite, the dev
+in-memory engine and the Elasticsearch adapter. Work package 3 (schema lifecycle) is next; progress is tracked as
+epics in the repository's issues.
 Nothing is published yet. This repository is the monorepo; each package will be split to a read-only
 repository for Composer when the first tag is cut.
 
@@ -41,6 +44,16 @@ repository for Composer when the first tag is cut.
 composer install
 composer qa        # phpcs + phpstan + check-imports + phpunit
 ```
+
+Suites that need a database or an engine skip unless their connection is set. To run them all:
+
+```sh
+docker compose up -d                              # PostgreSQL, MySQL, Elasticsearch 9 and 8
+export $(grep -v '^#' .env.testing | xargs)
+composer qa
+```
+
+CI runs every service-backed suite and fails on any skip.
 
 ## License
 

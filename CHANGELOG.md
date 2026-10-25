@@ -16,3 +16,8 @@ to [Semantic Versioning](https://semver.org/). Every package shares one version 
   `SearchAdapter`, `SchemaAdapter`, `WriteAdapter` contracts, `Capability` and `UnsupportedClause`; the `Storage`
   port with Orion's tables as data; `InMemoryStorage` and `StorageConformanceTestCase` (same-connection test
   included) in `orion-search/testing`; `Orion::create(new Config(...))` with explicit tenancy.
+- WP2: adapter contracts with version-stamped deletes (`Tombstone`), `SchemaAdapter::drop()` and a scopable
+  `SearchAdapter::raw()`; `EngineConformanceTestCase` and the dev `InMemory` engine; `orion-search/pdo`, storage on
+  the host's PDO connection that joins the host's transaction, with the table installer (SQLite, PostgreSQL, MySQL);
+  `orion-search/elasticsearch` for Elasticsearch 8.19 and 9.x; `compose.yaml` and `.env.testing` for the local
+  service-backed suites.

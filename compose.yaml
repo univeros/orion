@@ -1,0 +1,19 @@
+# The services the conformance suites run against locally; CI starts the same images.
+#   docker compose up -d && export $(grep -v '^#' .env.testing | xargs) && composer qa
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment: { POSTGRES_USER: orion, POSTGRES_PASSWORD: orion, POSTGRES_DB: orion }
+    ports: ['54329:5432']
+  mysql:
+    image: mysql:8.4
+    environment: { MYSQL_ROOT_PASSWORD: orion, MYSQL_DATABASE: orion }
+    ports: ['33069:3306']
+  elasticsearch:
+    image: elasticsearch:9.5.5
+    environment: { discovery.type: single-node, xpack.security.enabled: 'false', ES_JAVA_OPTS: -Xms512m -Xmx512m }
+    ports: ['59200:9200']
+  elasticsearch8:
+    image: elasticsearch:8.19.23
+    environment: { discovery.type: single-node, xpack.security.enabled: 'false', ES_JAVA_OPTS: -Xms512m -Xmx512m }
+    ports: ['59201:9200']

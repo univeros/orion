@@ -21,8 +21,11 @@ split-published later. The Univeros module lives here too, as `packages/univeros
 - **WP1 complete** (2026-10-25): query and schema ASTs with their declarative forms, core RRF, total schema
   change classification, write types, adapter contracts and `Capability`, the `Storage` port with
   `InMemoryStorage` and `StorageConformanceTestCase` (same-connection test included), `Orion::create()`.
-- **WP2 is next**: `orion-search/pdo`, the Elasticsearch adapter, the engine conformance suite. See
-  `docs/spec/revision.md` §7.
+- **WP2 complete** (2026-10-25): versioned deletes, `drop()` and a scopable `raw()` in the contracts;
+  `EngineConformanceTestCase` and the dev `InMemory` engine; `orion-search/pdo` (host-transaction aware);
+  `orion-search/elasticsearch` (8.19 and 9.x).
+- **WP3 is next**: Planner, versioned indices, `AliasManager`, determinism harness. See `docs/spec/revision.md` §7.
+- Local services for the conformance suites: `docker compose up -d`, then export `.env.testing`.
 
 ## The rules
 
@@ -75,7 +78,7 @@ bin/check-imports                the dependency-isolation gate
 ## Commands
 
 ```
-composer qa              # cs + stan + imports + test
+composer qa              # cs + stan + imports + test (service suites skip unless .env.testing is exported)
 composer test            # phpunit
 composer stan
 composer cs-fix
