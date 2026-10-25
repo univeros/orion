@@ -18,8 +18,11 @@ split-published later. The Univeros module lives here too, as `packages/univeros
 
 - **WP0 complete** (2026-10-25): repository, root QA, `bin/check-imports` with tests, `packages/core` and
   `packages/testing` skeletons, docs, CI.
-- **WP1 is next**: core ASTs and types, the `Storage` port with the in-memory adapter, the same-connection
-  conformance test, `Orion::create()`. See `docs/spec/revision.md` §7.
+- **WP1 complete** (2026-10-25): query and schema ASTs with their declarative forms, core RRF, total schema
+  change classification, write types, adapter contracts and `Capability`, the `Storage` port with
+  `InMemoryStorage` and `StorageConformanceTestCase` (same-connection test included), `Orion::create()`.
+- **WP2 is next**: `orion-search/pdo`, the Elasticsearch adapter, the engine conformance suite. See
+  `docs/spec/revision.md` §7.
 
 ## The rules
 
