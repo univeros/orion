@@ -30,12 +30,21 @@ jobs:
           MYSQL_DATABASE: orion
         ports: ['3306:3306']
         options: --health-cmd "mysqladmin ping -h 127.0.0.1 -porion" --health-interval 5s --health-timeout 5s --health-retries 30
+      elasticsearch:
+        image: elasticsearch:9.5.5
+        env:
+          discovery.type: single-node
+          xpack.security.enabled: 'false'
+          ES_JAVA_OPTS: -Xms512m -Xmx512m
+        ports: ['9200:9200']
+        options: --health-cmd "curl -fs http://localhost:9200/_cluster/health" --health-interval 10s --health-timeout 5s --health-retries 30
 
     env:
       ORION_PGSQL_DSN: pgsql:host=127.0.0.1;port=5432;dbname=orion;user=orion;password=orion
       ORION_MYSQL_DSN: mysql:host=127.0.0.1;port=3306;dbname=orion
       ORION_MYSQL_USER: root
       ORION_MYSQL_PASSWORD: orion
+      ORION_ELASTICSEARCH_URL: http://127.0.0.1:9200
 
     steps:
       - uses: actions/checkout@v4
@@ -66,6 +75,34 @@ jobs:
 
       # A service-backed suite that skips here is a missing service, not a pass.
       - name: Tests (phpunit, every service-backed suite required)
-        run: vendor/bin/phpunit --fail-on-skipped
+        run: vendor/bin/phpunit --fail-on-skipped --exclude-group elasticsearch8
 
-  # Engine service containers join this job with their work packages (docs/spec/revision.md §7).
+  elasticsearch-8:
+    name: Elasticsearch 8.19 conformance (client 8.19)
+    runs-on: ubuntu-latest
+    services:
+      elasticsearch:
+        image: elasticsearch:8.19.23
+        env:
+          discovery.type: single-node
+          xpack.security.enabled: 'false'
+          ES_JAVA_OPTS: -Xms512m -Xmx512m
+        ports: ['9200:9200']
+        options: --health-cmd "curl -fs http://localhost:9200/_cluster/health" --health-interval 10s --health-timeout 5s --health-retries 30
+    env:
+      ORION_ELASTICSEARCH8_URL: http://127.0.0.1:9200
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: sodium, mbstring
+          coverage: none
+      - name: Install with the 8.x client
+        run: |
+          composer install --no-interaction --prefer-dist --no-progress
+          composer update elasticsearch/elasticsearch elastic/transport --with=elasticsearch/elasticsearch:^8.19 -W --no-interaction --no-progress
+      - name: Conformance
+        run: vendor/bin/phpunit --group elasticsearch8 --fail-on-skipped
+
+  # Further engine service containers join with their work packages (docs/spec/revision.md §7).

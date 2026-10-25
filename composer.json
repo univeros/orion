@@ -23,7 +23,8 @@
                 "versions": {
                     "orion-search/core": "0.1.x-dev",
                     "orion-search/testing": "0.1.x-dev",
-                    "orion-search/pdo": "0.1.x-dev"
+                    "orion-search/pdo": "0.1.x-dev",
+                    "orion-search/elasticsearch": "0.1.x-dev"
                 }
             }
         }
@@ -31,10 +32,12 @@
     "require": {
         "php": ">=8.3",
         "orion-search/core": "0.1.x-dev",
+        "orion-search/elasticsearch": "0.1.x-dev",
         "orion-search/pdo": "0.1.x-dev",
         "orion-search/testing": "0.1.x-dev"
     },
     "require-dev": {
+        "guzzlehttp/guzzle": "^7.9",
         "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^12.5",
         "squizlabs/php_codesniffer": "^3.13.6"
@@ -42,7 +45,8 @@
     "autoload-dev": {
         "psr-4": {
             "Orion\\Tests\\": "packages/core/tests/",
-            "Orion\\Pdo\\Tests\\": "packages/pdo/tests/"
+            "Orion\\Pdo\\Tests\\": "packages/pdo/tests/",
+            "Orion\\Elasticsearch\\Tests\\": "packages/elasticsearch/tests/"
         }
     },
     "scripts": {
@@ -62,6 +66,9 @@
         "sort-packages": true,
         "platform": {
             "php": "8.3.0"
+        },
+        "allow-plugins": {
+            "php-http/discovery": false
         }
     },
     "minimum-stability": "stable",

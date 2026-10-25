@@ -7,6 +7,8 @@
     <file>packages/testing/src</file>
     <file>packages/pdo/src</file>
     <file>packages/pdo/tests</file>
+    <file>packages/elasticsearch/src</file>
+    <file>packages/elasticsearch/tests</file>
 
     <arg name="colors"/>
     <arg name="warning-severity" value="0"/>

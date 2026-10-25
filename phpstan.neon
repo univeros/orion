@@ -9,3 +9,5 @@ parameters:
         - packages/testing/src
         - packages/pdo/src
         - packages/pdo/tests
+        - packages/elasticsearch/src
+        - packages/elasticsearch/tests
