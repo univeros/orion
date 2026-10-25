@@ -14,6 +14,29 @@ jobs:
       matrix:
         php: ['8.3', '8.4']
 
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: orion
+          POSTGRES_PASSWORD: orion
+          POSTGRES_DB: orion
+        ports: ['5432:5432']
+        options: --health-cmd "pg_isready -U orion" --health-interval 5s --health-timeout 5s --health-retries 20
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: orion
+          MYSQL_DATABASE: orion
+        ports: ['3306:3306']
+        options: --health-cmd "mysqladmin ping -h 127.0.0.1 -porion" --health-interval 5s --health-timeout 5s --health-retries 30
+
+    env:
+      ORION_PGSQL_DSN: pgsql:host=127.0.0.1;port=5432;dbname=orion;user=orion;password=orion
+      ORION_MYSQL_DSN: mysql:host=127.0.0.1;port=3306;dbname=orion
+      ORION_MYSQL_USER: root
+      ORION_MYSQL_PASSWORD: orion
+
     steps:
       - uses: actions/checkout@v4
 
@@ -21,7 +44,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: sodium, mbstring, pdo_sqlite, sqlite3
+          extensions: sodium, mbstring, pdo_sqlite, sqlite3, pdo_pgsql, pdo_mysql
           coverage: none
 
       - name: Validate composer.json (root and packages)
@@ -41,8 +64,8 @@ jobs:
       - name: Dependency isolation (check-imports)
         run: composer imports
 
-      - name: Tests (phpunit)
-        run: composer test
+      # A service-backed suite that skips here is a missing service, not a pass.
+      - name: Tests (phpunit, every service-backed suite required)
+        run: vendor/bin/phpunit --fail-on-skipped
 
-  # Engine service containers (Elasticsearch, Solr, OpenSearch, Meilisearch) and PostgreSQL join this
-  # workflow with their work packages (docs/spec/revision.md §7, WP2 onward).
+  # Engine service containers join this job with their work packages (docs/spec/revision.md §7).

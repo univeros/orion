@@ -22,7 +22,8 @@
                 "symlink": true,
                 "versions": {
                     "orion-search/core": "0.1.x-dev",
-                    "orion-search/testing": "0.1.x-dev"
+                    "orion-search/testing": "0.1.x-dev",
+                    "orion-search/pdo": "0.1.x-dev"
                 }
             }
         }
@@ -30,6 +31,7 @@
     "require": {
         "php": ">=8.3",
         "orion-search/core": "0.1.x-dev",
+        "orion-search/pdo": "0.1.x-dev",
         "orion-search/testing": "0.1.x-dev"
     },
     "require-dev": {
@@ -39,7 +41,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Orion\\Tests\\": "packages/core/tests/"
+            "Orion\\Tests\\": "packages/core/tests/",
+            "Orion\\Pdo\\Tests\\": "packages/pdo/tests/"
         }
     },
     "scripts": {

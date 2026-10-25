@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9340bb2f891576da771ba47780ac6676",
+    "content-hash": "d5db000b6058ca0f84d471609bc660c8",
     "packages": [
         {
             "name": "myclabs/deep-copy",
@@ -129,7 +129,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/core",
-                "reference": "c5246e3533e45484a86a76c8dc14797a4ba8b48a"
+                "reference": "ad67dc1770b033ef1686272310507e3b39186d82"
             },
             "require": {
                 "ext-sodium": "*",
@@ -186,12 +186,67 @@
             }
         },
         {
+            "name": "orion-search/pdo",
+            "version": "0.1.x-dev",
+            "dist": {
+                "type": "path",
+                "url": "packages/pdo",
+                "reference": "26f801f759a79fe548f5d95139cfb800ccefb161"
+            },
+            "require": {
+                "ext-pdo": "*",
+                "orion-search/core": "^0.1",
+                "php": ">=8.3"
+            },
+            "require-dev": {
+                "orion-search/testing": "^0.1"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Orion\\Pdo\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Orion\\Pdo\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "2am.tech",
+                    "homepage": "https://2am.tech"
+                }
+            ],
+            "description": "Orion storage over PDO (PostgreSQL, MySQL, SQLite) on the host's own connection, with the table installer",
+            "keywords": [
+                "mysql",
+                "outbox",
+                "pdo",
+                "postgresql",
+                "search",
+                "sqlite"
+            ],
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "orion-search/testing",
             "version": "0.1.x-dev",
             "dist": {
                 "type": "path",
                 "url": "packages/testing",
-                "reference": "9295b476692ad634e6559086678788a1601919a7"
+                "reference": "735be72bda55b60b1056b25a7af66ef30750608c"
             },
             "require": {
                 "orion-search/core": "^0.1",
@@ -2564,6 +2619,7 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "orion-search/core": 20,
+        "orion-search/pdo": 20,
         "orion-search/testing": 20
     },
     "prefer-stable": true,
