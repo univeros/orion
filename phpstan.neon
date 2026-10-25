@@ -1,5 +1,8 @@
 parameters:
     level: 8
+    # Value objects re-check their phpdoc shapes at runtime (list, finite, element types): callers that do not run
+    # phpstan reach them too. Narrowing still comes from native types.
+    treatPhpDocTypesAsCertain: false
     paths:
         - packages/core/src
         - packages/core/tests
