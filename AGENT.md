@@ -48,10 +48,12 @@ split-published later. The Univeros module lives here too, as `packages/univeros
 ## How to work a work package
 
 1. Read `docs/spec/revision.md` §7 for the WP's scope and acceptance criteria.
-2. Branch `wpN` from `main`.
+2. Work on `main` directly, or on a local `wpN` branch fast-forwarded into `main`. No pull requests.
 3. Write the failing test, then the smallest change that meets the criteria; run `composer qa` continuously.
 4. Record decisions in `docs/decisions.md`, append only.
-5. Open a pull request whose description lists each acceptance criterion with how it was verified.
+5. Commit in coherent steps, conventional format (`feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:`),
+   authored by the owner only: no `Co-Authored-By` or any other attribution trailer, ever.
+6. Close the WP's epic with a comment listing each acceptance criterion and how it was verified.
 
 ## Layout
 

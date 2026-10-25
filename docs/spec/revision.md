@@ -172,8 +172,9 @@ and `mcp`.
 ## 7. Work packages
 
 The gate between every WP is `composer qa` green plus the conformance and determinism suites, never "it runs".
-Branch `wpN` from `main`; record decisions in `docs/decisions.md`, append only; the PR lists each acceptance
-criterion with how it was verified. v1 §19's order is kept, with the Univeros module pulled forward to WP5,
+No pull requests: work lands on `main` in coherent commits authored by the owner alone (no attribution
+trailers); record decisions in `docs/decisions.md`, append only; the WP's epic is closed with a comment listing
+each acceptance criterion and how it was verified. v1 §19's order is kept, with the Univeros module pulled forward to WP5,
 because the module is what shakes out the ports while they are still cheap to change.
 
 | WP | Scope | Acceptance |
