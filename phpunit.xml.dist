@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+         failOnWarning="true"
+         failOnRisky="true">
+    <testsuites>
+        <testsuite name="core">
+            <directory>packages/core/tests</directory>
+            <exclude>packages/core/tests/Conformance</exclude>
+        </testsuite>
+        <!-- Engine and storage conformance; ORION_ENGINE / ORION_STORAGE select the adapter under test, ORION_HARNESS the host. -->
+        <testsuite name="conformance">
+            <directory>packages/core/tests/Conformance</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory>packages/core/src</directory>
+            <directory>packages/testing/src</directory>
+        </include>
+    </source>
+</phpunit>

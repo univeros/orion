@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  qa:
+    name: QA (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.3', '8.4']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: sodium, mbstring, pdo_sqlite, sqlite3
+          coverage: none
+
+      - name: Validate composer.json (root and packages)
+        run: |
+          composer validate --strict
+          for pkg in packages/*/composer.json; do composer validate --strict --no-check-lock "$pkg"; done
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Coding standard (phpcs)
+        run: composer cs
+
+      - name: Static analysis (phpstan)
+        run: composer stan
+
+      - name: Dependency isolation (check-imports)
+        run: composer imports
+
+      - name: Tests (phpunit)
+        run: composer test
+
+  # Engine service containers (Elasticsearch, Solr, OpenSearch, Meilisearch) and PostgreSQL join this
+  # workflow with their work packages (docs/spec/revision.md §7, WP2 onward).

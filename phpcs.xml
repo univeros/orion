@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<ruleset name="Orion">
+    <description>Orion coding standard (PSR-12).</description>
+
+    <file>packages/core/src</file>
+    <file>packages/core/tests</file>
+    <file>packages/testing/src</file>
+
+    <arg name="colors"/>
+    <arg name="warning-severity" value="0"/>
+    <arg value="np"/>
+
+    <rule ref="PSR12"/>
+</ruleset>

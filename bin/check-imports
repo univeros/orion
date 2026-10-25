@@ -1,0 +1,34 @@
+#!/usr/bin/env sh
+# Dependency isolation by package (docs/spec/revision.md §2). Framework namespaces (Altair\, Cycle\,
+# Univeros\) only inside packages/univeros and examples/univeros; Polaris\ only inside the Polaris
+# bridge and the Univeros module; each engine client only inside its adapter package.
+# Usage: bin/check-imports [root]   (the root defaults to the repository; tests pass a fixture tree)
+set -u
+cd "${1:-$(dirname "$0")/..}" || exit 2
+
+status=0
+# allowed-dirs:pattern — the pattern may appear only under packages/<dir> and examples/<dir>.
+for rule in \
+    'univeros:Altair\\|Cycle\\|Univeros\\' \
+    'polaris|univeros:Polaris\\' \
+    'elasticsearch:Elastic\\|Elasticsearch\\' \
+    'opensearch:OpenSearch\\' \
+    'solr:Solarium\\' \
+    'meilisearch:Meilisearch\\' \
+    'laravel:Illuminate\\|Laravel\\' \
+    'symfony|laravel:Symfony\\Bundle\\|Symfony\\Component\\(HttpKernel|HttpFoundation|DependencyInjection|Security|Config|Routing)\\' \
+    'yii:Yiisoft\\'
+do
+    allowed=${rule%%:*}
+    pattern=${rule#*:}
+    leaks=$(grep -rnE --include='*.php' "$pattern" packages/*/src packages/*/tests examples/*/src examples/*/public 2>/dev/null | grep -vE "^(packages|examples)/($allowed)/")
+    if [ -n "$leaks" ]; then
+        printf 'namespaces matching %s outside packages/{%s} and examples/{%s}:\n%s\n' "$pattern" "$allowed" "$allowed" "$leaks"
+        status=1
+    fi
+done
+
+if [ "$status" -eq 0 ]; then
+    printf 'Every framework, Polaris and engine-client namespace stays inside its own package.\n'
+fi
+exit "$status"
