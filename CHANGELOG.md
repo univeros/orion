@@ -40,7 +40,18 @@ to [Semantic Versioning](https://semver.org/). Every package shares one version 
   `ReceiptVerifier` and `SodiumVerifier` (verification from public keys), `orion verify --head` for an anchored head;
   `Storage\DuplicateKey`; `AliasingEngine` in `orion-search/testing`.
 
+- WP5: `univeros/orion`, the Univeros module (`Module`, `Bootstrap\OrionConfig`, `Database\CycleExecutor`,
+  `CycleStorage`, `CycleInstaller`, the `InstallOrion` migration, `Console\Commands`, seven `Doctor` checks,
+  `Messaging\BusDispatcher` and `DrainIndexHandler`, `Observability\MeterMetrics`, `AgentSpec\ManifestSection`);
+  `Orion\Pdo\SqlStorage`, `Executor` and `PdoExecutor`; `Orion\Manifest\Loader`, `Manifest`, `Declaration` and
+  `Graph::manifest()`; `SchemaAdapter::resolve()`; `ElasticsearchEngine::connect()`; the harnesses' `createStorage()`
+  hook; `examples/univeros` with `bin/setup` and `bin/walkthrough.sh`, and a CI job running it.
+
 ### Changed
+- WP5: `PdoStorage` delegates to `SqlStorage`; on MySQL, `update()` counts matches with a locking read, so a
+  compare-and-set another transaction won no longer counts as a match. The CLI reads schemas and engines from the
+  `search:` manifest when `--schema` is not given, and `--schema` accepts a manifest file; `Cli\Context` takes a lazy
+  resolver and `Cli\Application::commands()` lists the commands for a host's console.
 - WP4: `orion_outbox` is keyed on (`index_name`, `outbox_offset`) with one row per document; `orion_receipt` is keyed
   on `sequence` and gains `engine`; `orion_counter`, `orion_dead_letter` and `orion_reindex` are new. `Planner` issues
   receipts, refuses an apply while a reindex is pending, and reports a query-time-only change as `applied`.

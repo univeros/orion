@@ -33,7 +33,11 @@ split-published later. The Univeros module lives here too, as `packages/univeros
   signed hash-chained receipts (`ReceiptSigner`, `SodiumSigner`, `ReceiptStore`, `Verifier`), the `Reindexer` (replay,
   leased lock, resume, abort, prune), `orion-search/cli` (`bin/orion`), and `FaultInjectionTestCase`, green on the
   in-memory engine and Elasticsearch 9 and 8.19.
-- **WP5 is next**: the Univeros module. See `docs/spec/revision.md` §5 and §7.
+- **WP5 complete** (2026-10-26): `SqlStorage` over an `Executor` port (PDO and Cycle), `univeros/orion` (storage on the
+  host's Cycle connection, migration, `orion:*` commands, the seven doctor checks with `--fix`, bus dispatcher, Meter
+  metrics, agent manifest section), the `search:` manifest's index declarations in core, `SchemaAdapter::resolve()`,
+  the harnesses on Cycle storage, and `examples/univeros` with a walkthrough.
+- **WP6 is next**: tenancy. See `docs/spec/revision.md` §7.
 - Local services for the conformance and determinism suites: `docker compose up -d`, then export `.env.testing`.
 
 ## The rules
@@ -77,8 +81,8 @@ packages/core/{src,tests}        orion-search/core      Orion\            the fr
 packages/testing/src             orion-search/testing   Orion\Testing\    in-memory storage, conformance cases, fakes
 packages/<engine>                orion-search/<engine>  one engine adapter each, own client dependency (from WP2)
 packages/pdo, psr15, cli, polaris                       storage, HTTP, bin/orion, Polaris tenancy bridge (WP2, WP8, WP4, WP6)
-packages/univeros                univeros/orion         Univeros\Orion\   the Univeros module (WP5)
-examples/univeros                                        the demo host (WP5)
+packages/univeros                univeros/orion         Univeros\Orion\   the Univeros module
+examples/univeros                                        the demo host: bin/setup, bin/walkthrough.sh (needs Elasticsearch)
 docs/                            spec, revision, decisions
 .ai/skills/orion/SKILL.md        the agent skill
 bin/check-imports                the dependency-isolation gate

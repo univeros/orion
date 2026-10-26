@@ -20,8 +20,9 @@ Two honest sentences: the lifecycle is deterministic and provably so; ranking is
 | `orion-search/pdo` | `Orion\Pdo\` | Storage on your PDO connection (PostgreSQL, MySQL, SQLite), table installer. |
 | `orion-search/elasticsearch` | `Orion\Elasticsearch\` | Engine adapter for Elasticsearch 8.19 and 9.x. |
 | `orion-search/cli` | `Orion\Cli\` | `bin/orion`: plan, apply, reindex, prune, drift, status, flush, verify, the outbox drain. YAML or deterministic JSON. |
+| `univeros/orion` | `Univeros\Orion\` | The Univeros module: one line in `config/modules.php`; storage on the host's Cycle connection, migration, `orion:*` commands, doctor checks. |
 
-More packages (PSR-15 endpoint, the Polaris tenancy bridge, the Univeros module, Solr, OpenSearch, Meilisearch)
+More packages (PSR-15 endpoint, the Polaris tenancy bridge, Solr, OpenSearch, Meilisearch)
 are added as their work package starts; see [`docs/spec/revision.md`](docs/spec/revision.md) §1 and §7.
 
 ## How it fits together
@@ -47,7 +48,8 @@ $graph->reindexer('elasticsearch')->reindex($changedSchema); // replay into prod
 $graph->verifier()->verify();                          // the receipt chain, hashes, signatures, every alias attested
 ```
 
-Record into the outbox as the last statement of your transaction: writers to one index queue on its offset counter
+Declare indices in `api/<name>/search.yaml` (`index`, `engine`, `schema`, `org_key`): `orion apply`, `orion drift`
+and the doctor read them. Record into the outbox as the last statement of your transaction: writers to one index queue on its offset counter
 until they commit, which is what keeps offsets in commit order. An auditor verifies with public keys only:
 `receiptVerifier: SodiumVerifier::fromBase64(['prod-1' => $publicKey])`.
 
@@ -61,11 +63,12 @@ bin/orion outbox:drain && bin/orion verify --json
 
 ## Status
 
-Work packages 0 to 4 are done: the core ASTs and contracts, storage on PDO, the engine conformance suite, the dev
+Work packages 0 to 5 are done: the core ASTs and contracts, storage on PDO, the engine conformance suite, the dev
 in-memory engine, the Elasticsearch adapter, the schema lifecycle (plan, apply, versioned indices behind an alias,
 the index registry), the transactional outbox and its drain, zero-downtime reindex by replay, signed hash-chained
-receipts, `bin/orion`, and the determinism and fault-injection harnesses. Work package 5 (the Univeros module) is
-next; progress is tracked as epics in the repository's issues.
+receipts, `bin/orion`, the determinism and fault-injection harnesses, the `search:` manifest's index declarations,
+and the Univeros module with a demo host and walkthrough (`examples/univeros`). Work package 6 (tenancy) is next;
+progress is tracked as epics in the repository's issues.
 Nothing is published yet. This repository is the monorepo; each package will be split to a read-only
 repository for Composer when the first tag is cut.
 
