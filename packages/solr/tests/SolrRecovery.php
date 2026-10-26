@@ -21,6 +21,7 @@ use function file_get_contents;
 use function getenv;
 use function http_build_query;
 use function random_bytes;
+use function str_replace;
 
 use const CURLOPT_HTTPHEADER;
 use const CURLOPT_POST;
@@ -75,8 +76,11 @@ abstract class SolrRecovery extends TestCase
 
     public function testAConfigsetCopyACrashLeftBehindIsReplaced(): void
     {
-        // Some other schema under the copy's name: _default's dynamic fields would accept anything.
-        $this->call('admin/configs', ['action' => 'CREATE', 'name' => 'orion.' . $this->index->value, 'baseConfigSet' => '_default']);
+        // Some other schema under the copy's name, whose dynamic field would accept anything.
+        $copy = ['action' => 'UPLOAD', 'name' => 'orion.' . $this->index->value, 'overwrite' => 'true'];
+        $this->call('admin/configs', [...$copy, 'filePath' => 'solrconfig.xml'], (string) file_get_contents(dirname(__DIR__) . '/configset/solrconfig.xml'));
+        $this->call('admin/configs', [...$copy, 'filePath' => 'managed-schema.xml'], str_replace('</schema>', '<dynamicField name="*_s" type="orion_id" indexed="true" stored="true"/></schema>', (string) file_get_contents(dirname(__DIR__) . '/configset/managed-schema.xml')));
+        self::assertStringContainsString('orion.' . $this->index->value, $this->call('admin/configs', ['action' => 'LIST']), 'The crash left its copy behind.');
 
         $this->engine->ensure($this->schema());
 
