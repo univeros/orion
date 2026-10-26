@@ -28,13 +28,17 @@ use Orion\Support\NullEventDispatcher;
 use Orion\Write\BulkResult;
 use Orion\Write\Document;
 use Orion\Write\Tombstone;
+use Orion\Write\WriteOutcome;
+use JsonException;
 use Override;
+use RuntimeException;
 use Solarium\Core\Client\Adapter\Curl;
 use Solarium\Core\Client\Client;
 use Throwable;
 
 use function array_diff;
 use function array_filter;
+use function array_intersect;
 use function array_is_list;
 use function array_keys;
 use function array_map;
@@ -146,29 +150,45 @@ final class SolrEngine implements SearchAdapter, SchemaAdapter, WriteAdapter
     }
 
     /**
-     * Creates the collection from Orion's configset and adds the declared fields; a collection whose fields cannot be
-     * added is dropped again rather than left half-built.
+     * Creates the collection from Orion's configset and adds the declared fields. A collection that exists, whether a
+     * concurrent `ensure()` built it or a crash left it without its fields, is completed with the declared fields it
+     * lacks; nothing else about it changes. A collection this call created and could not complete is dropped again.
      */
     #[Override]
     public function ensure(IndexSchema $schema): void
     {
+        $definitions = Schema::definitions($schema->fields);
         if ($this->exists($schema->index)) {
+            $this->complete($schema);
+
             return;
         }
-        $definitions = Schema::definitions($schema->fields);
         $configset = Configset::forCollection($this->http, $schema->index);
-        Http::ok($this->http->get('admin/collections', [
+        $created = $this->http->get('admin/collections', [
             'action' => 'CREATE',
             'name' => $schema->index->value,
             'collection.configName' => $configset,
             'numShards' => '1',
             'replicationFactor' => '1',
             ...self::collectionSettings($schema),
-        ]), 'create the collection ' . $schema->index->value);
+        ]);
+        if ($created[0] !== 200) {
+            if (!$this->exists($schema->index)) {
+                Http::ok($created, 'create the collection ' . $schema->index->value);
+            }
+            // Another ensure() created it meanwhile: complete it as one that already existed.
+            $this->complete($schema);
+
+            return;
+        }
         try {
             $this->addFields($schema->index, $definitions);
         } catch (Throwable $failure) {
-            $this->drop($schema->index);
+            try {
+                $this->drop($schema->index);
+            } catch (Throwable $cleanup) {
+                throw new RuntimeException(sprintf('%s; dropping the half-built collection failed too: %s', $failure->getMessage(), $cleanup->getMessage()), 0, $failure);
+            }
 
             throw $failure;
         }
@@ -205,19 +225,13 @@ final class SolrEngine implements SearchAdapter, SchemaAdapter, WriteAdapter
         if (!$this->exists($plan->index)) {
             throw new LogicException(sprintf('The index %s does not exist; ensure it first.', $plan->index->value));
         }
-        $types = [];
         $fields = [];
         foreach ($plan->additive() as $change) {
             if ($change->kind === ChangeKind::Added && $change->after instanceof Field) {
-                $parent = implode('.', array_slice(explode('.', $change->path), 0, -1));
-                $added = Schema::definitions([$change->after], $parent === '' ? '' : $parent . '.');
-                $types = [...$types, ...$added['types']];
-                $fields = [...$fields, ...$added['fields']];
+                $fields[] = [$change->path, $change->after];
             }
         }
-        if ($fields !== []) {
-            $this->addFields($plan->index, ['types' => $types, 'fields' => $fields]);
-        }
+        $this->addChanges($plan->index, $fields);
 
         return PendingTask::completed();
     }
@@ -274,17 +288,33 @@ final class SolrEngine implements SearchAdapter, SchemaAdapter, WriteAdapter
     public function index(IndexName $index, Document ...$docs): BulkResult
     {
         $this->assertExists($index);
-        if ($docs === []) {
-            return BulkResult::completed();
+        $body = [];
+        $sent = [];
+        $refused = [];
+        foreach ($docs as $doc) {
+            $flat = self::flatten($doc->fields);
+            $reserved = array_values(array_intersect(array_keys($flat), Schema::INTERNAL));
+            try {
+                $source = json_encode($doc->fields, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRESERVE_ZERO_FRACTION);
+            } catch (JsonException $invalid) {
+                $refused[$doc->id] = WriteOutcome::failed($doc->id, 'The document is not JSON: ' . $invalid->getMessage());
+                continue;
+            }
+            if ($reserved !== []) {
+                $refused[$doc->id] = WriteOutcome::failed($doc->id, sprintf('The fields %s are Orion\'s own.', implode(', ', $reserved)));
+                continue;
+            }
+            $body[] = [...$flat, 'id' => $doc->id, 'orion_version' => $doc->version, 'orion_source' => $source];
+            $sent[] = $doc->id;
         }
-        $body = array_map(static fn(Document $doc): array => [
-            ...self::flatten($doc->fields),
-            'id' => $doc->id,
-            'orion_version' => $doc->version,
-            'orion_source' => json_encode($doc->fields, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRESERVE_ZERO_FRACTION),
-        ], array_values($docs));
+        $outcomes = [];
+        if ($body !== []) {
+            foreach (UpdateResponse::outcomes($this->http->json($index->value . '/update', [], $body)[1], $sent) as $outcome) {
+                $outcomes[$outcome->id] = $outcome;
+            }
+        }
 
-        return BulkResult::completed(...UpdateResponse::outcomes($this->http->json($index->value . '/update', [], $body)[1], array_map(static fn(Document $doc): string => $doc->id, array_values($docs))));
+        return BulkResult::completed(...array_map(static fn(Document $doc): WriteOutcome => $refused[$doc->id] ?? $outcomes[$doc->id], array_values($docs)));
     }
 
     /**
@@ -312,9 +342,35 @@ final class SolrEngine implements SearchAdapter, SchemaAdapter, WriteAdapter
         Http::ok($this->http->json($index->value . '/update', ['commit' => 'true'], []), 'commit ' . $index->value);
     }
 
+    /**
+     * Asks the cluster each time: another process may create or drop the collection between two calls.
+     *
+     * @phpstan-impure
+     * @throws RuntimeException when Solr cannot say: an outage is not a missing index
+     */
     private function exists(IndexName $index): bool
     {
-        return $this->http->get($index->value . '/schema/uniquekey')[0] === 200;
+        $answer = $this->http->get($index->value . '/schema/uniquekey');
+
+        return match ($answer[0]) {
+            200 => true,
+            404 => false,
+            default => Http::ok($answer, 'tell whether ' . $index->value . ' exists') !== [],
+        };
+    }
+
+    /**
+     * Adds the declared fields an existing collection lacks.
+     */
+    private function complete(IndexSchema $schema): void
+    {
+        $fields = [];
+        foreach (MigrationPlan::between($schema, $this->inspect($schema->index))->additive() as $change) {
+            if ($change->kind === ChangeKind::Added && $change->after instanceof Field) {
+                $fields[] = [$change->path, $change->after];
+            }
+        }
+        $this->addChanges($schema->index, $fields);
     }
 
     /**
@@ -324,6 +380,24 @@ final class SolrEngine implements SearchAdapter, SchemaAdapter, WriteAdapter
     {
         if (!$this->exists($index)) {
             throw new InvalidArgumentException(sprintf('The index %s does not exist; ensure it first.', $index->value));
+        }
+    }
+
+    /**
+     * @param list<array{string, Field}> $added each added field with its (dotted) path
+     */
+    private function addChanges(IndexName $index, array $added): void
+    {
+        $types = [];
+        $fields = [];
+        foreach ($added as [$path, $field]) {
+            $parent = implode('.', array_slice(explode('.', $path), 0, -1));
+            $definitions = Schema::definitions([$field], $parent === '' ? '' : $parent . '.');
+            $types = [...$types, ...$definitions['types']];
+            $fields = [...$fields, ...$definitions['fields']];
+        }
+        if ($fields !== []) {
+            $this->addFields($index, ['types' => $types, 'fields' => $fields]);
         }
     }
 

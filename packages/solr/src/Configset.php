@@ -9,8 +9,6 @@ use Orion\IndexName;
 use function dirname;
 use function file_get_contents;
 use function hash;
-use function in_array;
-use function is_array;
 use function substr;
 
 /**
@@ -34,15 +32,13 @@ final class Configset
     }
 
     /**
-     * Uploads the configset unless the cluster has it, file by file (no archive needed).
+     * Uploads the configset, file by file (no archive needed), every time a collection is created: an upload a crash
+     * interrupted leaves the name listed with a file missing, and only uploading again repairs it. The files are the
+     * same each time, so concurrent uploads agree.
      */
     public static function ensure(Http $http): string
     {
         $name = self::name();
-        $listed = Http::ok($http->get('admin/configs', ['action' => 'LIST']), 'list configsets');
-        if (in_array($name, is_array($listed['configSets'] ?? null) ? $listed['configSets'] : [], true)) {
-            return $name;
-        }
         foreach (self::FILES as $file) {
             Http::ok($http->bytes('admin/configs', ['action' => 'UPLOAD', 'name' => $name, 'filePath' => $file, 'overwrite' => 'true'], self::read($file)), 'upload the configset ' . $name);
         }

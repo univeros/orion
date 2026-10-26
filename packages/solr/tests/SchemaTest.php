@@ -40,9 +40,9 @@ final class SchemaTest extends TestCase
             ['name' => 'in_stock', 'type' => 'orion_boolean_facet', 'indexed' => true, 'stored' => false],
             ['name' => 'at', 'type' => 'orion_geo_sort', 'indexed' => true, 'stored' => false],
         ], $definitions['fields']);
-        self::assertSame(['class' => 'solr.StrField', 'docValues' => true], self::type($definitions, 'orion_keyword_sort'));
-        self::assertSame(['class' => 'solr.StrField', 'docValues' => false], self::type($definitions, 'orion_keyword'));
-        self::assertSame(['class' => 'solr.LongPointField', 'docValues' => true], self::type($definitions, 'orion_integer_sort_facet'));
+        self::assertSame(['class' => 'solr.StrField', 'docValues' => true, 'sortMissingLast' => true], self::type($definitions, 'orion_keyword_sort'));
+        self::assertSame(['class' => 'solr.StrField', 'docValues' => false, 'sortMissingLast' => true], self::type($definitions, 'orion_keyword'));
+        self::assertSame(['class' => 'solr.LongPointField', 'docValues' => true, 'sortMissingLast' => true], self::type($definitions, 'orion_integer_sort_facet'));
         self::assertSame(['class' => 'solr.LatLonPointSpatialField', 'docValues' => true], self::type($definitions, 'orion_geo_sort'));
     }
 

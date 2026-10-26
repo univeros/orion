@@ -110,6 +110,9 @@ final class Schema
         $definitions = [];
         foreach ($fields as $field) {
             $name = $prefix . $field->name;
+            if (in_array($name, self::INTERNAL, true)) {
+                throw new InvalidArgumentException(sprintf('The field %s is Orion\'s own on Solr; name it otherwise.', Assert::show($name)));
+            }
             if ($field->type === FieldType::Object) {
                 $children = self::definitions($field->fields, $name . '.');
                 foreach ($children['types'] as $type) {
@@ -174,9 +177,12 @@ final class Schema
         return match ($field->type) {
             FieldType::Text => ['class' => 'solr.TextField', 'positionIncrementGap' => '100', 'analyzer' => self::analyzer($field)],
             FieldType::Vector => ['class' => 'solr.DenseVectorField', 'vectorDimension' => (int) $field->dims, 'similarityFunction' => self::METRICS[($field->metric ?? VectorMetric::Cosine)->value]],
+            // Documents missing a sort field come last in either direction, as the neutral sort means.
+            FieldType::Geo => ['class' => self::SCALARS['geo'], 'docValues' => $field->sortable],
             default => [
                 'class' => self::SCALARS[$field->type->value] ?? throw new InvalidArgumentException(sprintf('The field %s has no Solr type.', Assert::show($field->name))),
                 'docValues' => $field->sortable || $field->facetable,
+                'sortMissingLast' => true,
             ],
         };
     }

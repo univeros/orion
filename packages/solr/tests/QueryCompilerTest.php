@@ -48,9 +48,9 @@ final class QueryCompilerTest extends TestCase
 
     public function testMatchTextIsPlainTextNotQuerySyntax(): void
     {
-        $params = (new QueryCompiler())->compile(Query::on('products')->match('title', '"trail" +shoe -boot'));
+        $params = (new QueryCompiler())->compile(Query::on('products')->match('title', '"trail" +shoe -boot SKU-1'));
 
-        self::assertSame(' trail   shoe  boot', $params['o1']);
+        self::assertSame(' trail  shoe boot SKU-1', $params['o1'], 'Quotes and operators go; a hyphen inside a word stays.');
     }
 
     public function testFiltersAreFilterQueries(): void
@@ -114,6 +114,20 @@ final class QueryCompilerTest extends TestCase
         self::assertSame('released:{"2026-03-01T00:00:00Z" TO *]', $params['o2']);
         self::assertSame('sku:[* TO "B\"2\\\\"]', $params['o3']);
         self::assertFalse($compiler->needsTypes(Query::on('products')->filter(Filter::range('price', gte: 1))));
+    }
+
+    public function testTermsAreReadAsTheirFieldsDeclareThem(): void
+    {
+        $compiler = new QueryCompiler();
+        $query = Query::on('products')->filter(Filter::term('released', '2026-02-10'))->filter(Filter::term('stock', 5.0))->filter(Filter::exists('address'));
+
+        self::assertTrue($compiler->needsTypes($query));
+        $params = $compiler->compile($query, ['released' => FieldType::Date, 'stock' => FieldType::Integer, 'address.city' => FieldType::Keyword, 'address.zip' => FieldType::Keyword]);
+
+        self::assertSame(['2026-02-10T00:00:00Z', '5'], [$params['o1'], $params['o2']]);
+        self::assertSame('{!bool should=$o3 should=$o4}', $params['fq'][3]);
+        self::assertSame(['address.city:[* TO *]', 'address.zip:[* TO *]'], [$params['o3'], $params['o4']]);
+        self::assertFalse($compiler->needsTypes(Query::on('products')->filter(Filter::term('brand', 'acme'))->filter(Filter::range('price', gte: 1))));
     }
 
     public function testAnUnreadableDateBoundIsRefused(): void

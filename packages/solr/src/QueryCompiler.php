@@ -26,6 +26,10 @@ use Orion\Schema\FieldType;
 use Orion\Support\Assert;
 
 use function addcslashes;
+use function array_filter;
+use function array_keys;
+use function array_values;
+use function floor;
 use function array_map;
 use function implode;
 use function is_bool;
@@ -34,6 +38,7 @@ use function is_string;
 use function json_encode;
 use function preg_match;
 use function sprintf;
+use function str_starts_with;
 use function strtr;
 
 use const JSON_PRESERVE_ZERO_FRACTION;
@@ -62,13 +67,14 @@ final class QueryCompiler
     }
 
     /**
-     * Whether compiling needs the index's field types: a range bound given as a string is read as an instant on a date
-     * field and as text elsewhere, and only the schema tells which.
+     * Whether compiling needs the index's field types, which only the schema tells: a date given as a string is an
+     * instant on a date field and text elsewhere, a whole float is an integer on an integer field, and an object exists
+     * when any of its fields does.
      */
     public function needsTypes(Query $query): bool
     {
         foreach ($query->filters as $filter) {
-            if (self::hasStringBound($filter)) {
+            if (self::readsTypes($filter)) {
                 return true;
             }
         }
@@ -113,7 +119,7 @@ final class QueryCompiler
         }
         if ($query->highlights !== []) {
             // The html encoder escapes the stored text, so a fragment's only markup is the <em> around matches.
-            $params = [...$params, 'hl' => 'true', 'hl.fl' => implode(',', $query->highlights), 'hl.method' => 'unified', 'hl.encoder' => 'html', 'hl.tag.pre' => '<em>', 'hl.tag.post' => '</em>'];
+            $params = [...$params, 'hl' => 'true', 'hl.fl' => implode(',', $query->highlights), 'hl.method' => 'unified', 'hl.requireFieldMatch' => 'true', 'hl.encoder' => 'html', 'hl.tag.pre' => '<em>', 'hl.tag.post' => '</em>'];
         }
 
         return [...$params, ...$this->bound];
@@ -158,8 +164,8 @@ final class QueryCompiler
         $value = self::scalar($clause->value);
 
         return match ($clause->kind) {
-            // Plain text, as the neutral match means it: dismax reads only quotes, + and - as syntax.
-            ClauseKind::Match => sprintf('{!dismax qf=%s mm=1 v=%s}', $clause->field, $this->bind(strtr($value, ['"' => ' ', '+' => ' ', '-' => ' ']))),
+            // Plain text, as the neutral match means it: dismax reads quotes, and + or - starting a word, as syntax.
+            ClauseKind::Match => sprintf('{!dismax qf=%s mm=1 v=%s}', $clause->field, $this->bind((string) preg_replace('/(^|\s)[+-]+/', '$1', strtr($value, ['"' => ' '])))),
             ClauseKind::Term => sprintf('{!term f=%s v=%s}', $clause->field, $this->bind($value)),
             ClauseKind::Prefix => sprintf('{!prefix f=%s v=%s}', $clause->field, $this->bind($value)),
             ClauseKind::Phrase => sprintf('{!field f=%s v=%s}', $clause->field, $this->bind($value)),
@@ -172,21 +178,42 @@ final class QueryCompiler
     private function filter(Filter $filter, array $types, string $prefix = 'o'): string
     {
         return match (true) {
-            $filter instanceof TermFilter => $this->term($filter->field, $filter->value, $prefix),
+            $filter instanceof TermFilter => $this->term($filter->field, $filter->value, $prefix, $types[$filter->field] ?? null),
             $filter instanceof TermsFilter => '{!bool ' . implode(' ', array_map(
-                fn(string|int|float|bool $value): string => 'should=' . $this->bind($this->term($filter->field, $value, $prefix), $prefix),
+                fn(string|int|float|bool $value): string => 'should=' . $this->bind($this->term($filter->field, $value, $prefix, $types[$filter->field] ?? null), $prefix),
                 $filter->values,
             )) . '}',
             $filter instanceof RangeFilter => sprintf('{!lucene v=%s}', $this->bind($this->range($filter, $types[$filter->field] ?? null), $prefix)),
-            $filter instanceof ExistsFilter => $filter->field . ':[* TO *]',
+            $filter instanceof ExistsFilter => $this->exists($filter->field, $types, $prefix),
             $filter instanceof BoolFilter => $this->bool($filter, $types, $prefix),
             default => throw new LogicException('Unknown filter ' . $filter::class),
         };
     }
 
-    private function term(string $field, string|int|float|bool $value, string $prefix): string
+    private function term(string $field, string|int|float|bool $value, string $prefix, ?FieldType $type = null): string
     {
-        return sprintf('{!term f=%s v=%s}', $field, $this->bind(self::scalar($value), $prefix));
+        $read = match (true) {
+            $type === FieldType::Date && is_string($value) => self::instant($value, $field),
+            $type === FieldType::Integer && is_float($value) && floor($value) === $value => (string) (int) $value,
+            default => self::scalar($value),
+        };
+
+        return sprintf('{!term f=%s v=%s}', $field, $this->bind($read, $prefix));
+    }
+
+    /**
+     * An object exists when any of its (dotted) fields does.
+     *
+     * @param array<string, FieldType> $types
+     */
+    private function exists(string $field, array $types, string $prefix): string
+    {
+        $children = array_values(array_filter(array_keys($types), static fn(string $name): bool => str_starts_with($name, $field . '.')));
+        if ($children === [] || isset($types[$field])) {
+            return $field . ':[* TO *]';
+        }
+
+        return '{!bool ' . implode(' ', array_map(fn(string $child): string => 'should=' . $this->bind($child . ':[* TO *]', $prefix), $children)) . '}';
     }
 
     /**
@@ -261,18 +288,25 @@ final class QueryCompiler
         throw new InvalidArgumentException(sprintf('The range bound %s on the date field %s is not an ISO 8601 date.', Assert::show($value), Assert::show($field)));
     }
 
-    private static function hasStringBound(Filter $filter): bool
+    private static function readsTypes(Filter $filter): bool
     {
-        if ($filter instanceof RangeFilter) {
-            foreach ([$filter->gt, $filter->gte, $filter->lt, $filter->lte] as $bound) {
-                if (is_string($bound)) {
-                    return true;
-                }
+        $values = match (true) {
+            $filter instanceof RangeFilter => [$filter->gt, $filter->gte, $filter->lt, $filter->lte],
+            $filter instanceof TermFilter => [$filter->value],
+            $filter instanceof TermsFilter => $filter->values,
+            default => [],
+        };
+        foreach ($values as $value) {
+            if (is_string($value) && ($filter instanceof RangeFilter || preg_match(self::ISO, $value) === 1) || is_float($value)) {
+                return true;
             }
+        }
+        if ($filter instanceof ExistsFilter) {
+            return true;
         }
         if ($filter instanceof BoolFilter) {
             foreach ([...$filter->must, ...$filter->should, ...$filter->mustNot] as $child) {
-                if (self::hasStringBound($child)) {
+                if (self::readsTypes($child)) {
                     return true;
                 }
             }
