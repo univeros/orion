@@ -21,3 +21,14 @@ to [Semantic Versioning](https://semver.org/). Every package shares one version 
   the host's PDO connection that joins the host's transaction, with the table installer (SQLite, PostgreSQL, MySQL);
   `orion-search/elasticsearch` for Elasticsearch 8.19 and 9.x; `compose.yaml` and `.env.testing` for the local
   service-backed suites.
+- WP3: the schema lifecycle. `MigrationPlan::between()` diffs the org key and per-engine native settings against
+  the registered schema, failing closed; `IndexSchema::hash()`; the index registry (`orion_index` per versioned
+  physical index, `orion_alias` per alias, `IndexRegistration`, `IndexRegistry`); `SchemaAdapter::alias()` with the
+  Elasticsearch implementation and an alias conformance test; `AliasManager`, `IndexNamer`, `Planner` (plan, create
+  version 1 behind the alias, additive apply in place, `reindex_required` for breaking plans and refused additive
+  ones), `Operation` and `Outcome`; `Graph::registry()`, `aliases()`, `planner()`; `LifecycleDeterminismTestCase` and
+  `FixedClock` in `orion-search/testing`.
+
+### Changed
+- WP3: `orion_index` and `orion_alias` columns (provisional until now) take their final shape; `Change::$before` and
+  `$after` may hold a declared setting value as well as a field.

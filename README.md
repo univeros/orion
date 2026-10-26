@@ -16,7 +16,7 @@ Two honest sentences: the lifecycle is deterministic and provably so; ranking is
 | Package | Namespace | What it is |
 | --- | --- | --- |
 | `orion-search/core` | `Orion\` | The ASTs, adapter contracts, lifecycle, outbox, receipts, tenancy seam. PSR interfaces only. |
-| `orion-search/testing` | `Orion\Testing\` | In-memory storage, the storage and engine conformance test cases. |
+| `orion-search/testing` | `Orion\Testing\` | In-memory storage, the storage and engine conformance test cases, the lifecycle determinism harness. |
 | `orion-search/pdo` | `Orion\Pdo\` | Storage on your PDO connection (PostgreSQL, MySQL, SQLite), table installer. |
 | `orion-search/elasticsearch` | `Orion\Elasticsearch\` | Engine adapter for Elasticsearch 8.19 and 9.x. |
 
@@ -25,9 +25,10 @@ Meilisearch) are added as their work package starts; see [`docs/spec/revision.md
 
 ## Status
 
-Work packages 0 to 2 are done: the core ASTs and contracts, storage on PDO, the engine conformance suite, the dev
-in-memory engine and the Elasticsearch adapter. Work package 3 (schema lifecycle) is next; progress is tracked as
-epics in the repository's issues.
+Work packages 0 to 3 are done: the core ASTs and contracts, storage on PDO, the engine conformance suite, the dev
+in-memory engine, the Elasticsearch adapter, and the schema lifecycle (plan, apply, versioned indices behind an
+alias, the index registry, the determinism harness). Work package 4 (outbox, reindex by replay, receipts, CLI) is
+next; progress is tracked as epics in the repository's issues.
 Nothing is published yet. This repository is the monorepo; each package will be split to a read-only
 repository for Composer when the first tag is cut.
 

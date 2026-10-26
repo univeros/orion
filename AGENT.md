@@ -24,8 +24,12 @@ split-published later. The Univeros module lives here too, as `packages/univeros
 - **WP2 complete** (2026-10-25): versioned deletes, `drop()` and a scopable `raw()` in the contracts;
   `EngineConformanceTestCase` and the dev `InMemory` engine; `orion-search/pdo` (host-transaction aware);
   `orion-search/elasticsearch` (8.19 and 9.x).
-- **WP3 is next**: Planner, versioned indices, `AliasManager`, determinism harness. See `docs/spec/revision.md` §7.
-- Local services for the conformance suites: `docker compose up -d`, then export `.env.testing`.
+- **WP3 complete** (2026-10-26): `Planner` (plan and apply for one engine), the org key and native settings diffed
+  against the registration, versioned physical indices behind an alias (`IndexNamer`, `AliasManager`,
+  `SchemaAdapter::alias()`), the index registry (`orion_index`, `orion_alias`, `IndexRegistration`), `Outcome` as the
+  receipt seam, and `LifecycleDeterminismTestCase`, green on the in-memory engine and Elasticsearch 9 and 8.19.
+- **WP4 is next**: outbox, `Reindexer`, receipts, `orion-search/cli`. See `docs/spec/revision.md` §7.
+- Local services for the conformance and determinism suites: `docker compose up -d`, then export `.env.testing`.
 
 ## The rules
 
