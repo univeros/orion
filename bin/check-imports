@@ -4,6 +4,9 @@
 # bridge and the Univeros module; each engine client only inside its adapter package; the Symfony console
 # only inside the CLI and the host packages that register its commands. A pattern matches a root namespace only,
 # so Orion's own adapter namespaces (`Orion\Elasticsearch\`) are not mistaken for the client they wrap.
+# It reads every PHP source under packages/ and examples/ except installed dependencies. `use` statements match in any
+# case, as PHP resolves them; elsewhere case matters, so prose and string escapes (`elasticsearch\n`) are not mistaken
+# for a namespace. It is a lint, not a parser: a namespace assembled at runtime from strings is not seen.
 # Usage: bin/check-imports [root]   (the root defaults to the repository; tests pass a fixture tree)
 set -u
 cd "${1:-$(dirname "$0")/..}" || exit 2
@@ -11,6 +14,7 @@ cd "${1:-$(dirname "$0")/..}" || exit 2
 status=0
 # Start of line or a non-name character, then the pattern, or the `\` that fully qualifies it.
 root='(^|[^A-Za-z0-9_\\]|[^A-Za-z0-9_]\\)'
+sources="--include=*.php --include=*.phtml --include=*.inc --exclude-dir=vendor"
 # allowed-dirs:pattern — the pattern may appear only under packages/<dir> and examples/<dir>.
 for rule in \
     'univeros:Altair\\|Cycle\\|Univeros\\' \
@@ -20,13 +24,16 @@ for rule in \
     'solr:Solarium\\' \
     'meilisearch:Meilisearch\\' \
     'laravel:Illuminate\\|Laravel\\' \
-    'symfony|laravel:Symfony\\Bundle\\|Symfony\\Component\\(HttpKernel|HttpFoundation|DependencyInjection|Security|Config|Routing)\\' \
+    'symfony|laravel:Symfony\\Bundle\\|Symfony\\Component\\\{?(HttpKernel|HttpFoundation|DependencyInjection|Security|Config|Routing)\\' \
     'yii:Yiisoft\\' \
-    'cli|univeros|symfony|laravel|yii:Symfony\\Component\\Console\\'
+    'cli|univeros|symfony|laravel|yii:Symfony\\Component\\\{?Console\\'
 do
     allowed=${rule%%:*}
     pattern=${rule#*:}
-    leaks=$(grep -rnE --include='*.php' "$root($pattern)" packages/*/src packages/*/tests examples/*/src examples/*/public 2>/dev/null | grep -vE "^(packages|examples)/($allowed)/")
+    leaks=$( {
+        grep -rnE $sources "$root($pattern)" packages examples
+        grep -rniE $sources "^[[:space:]]*use[[:space:]]+(function[[:space:]]+|const[[:space:]]+)?\\\\?($pattern)" packages examples
+    } 2>/dev/null | sort -u | grep -vE "^(packages|examples)/($allowed)/")
     if [ -n "$leaks" ]; then
         printf 'namespaces matching %s outside packages/{%s} and examples/{%s}:\n%s\n' "$pattern" "$allowed" "$allowed" "$leaks"
         status=1
