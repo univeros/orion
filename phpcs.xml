@@ -12,6 +12,8 @@
     <file>packages/cli/src</file>
     <file>packages/cli/tests</file>
     <file>packages/cli/bin</file>
+    <file>packages/polaris/src</file>
+    <file>packages/polaris/tests</file>
     <file>packages/univeros/src</file>
     <file>packages/univeros/tests</file>
     <file>packages/univeros/migrations</file>

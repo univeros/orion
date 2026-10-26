@@ -1,0 +1,44 @@
+{
+    "name": "orion-search/polaris",
+    "description": "Orion tenancy from Polaris: the tenant is the active organization on the verified Polaris token",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "2am.tech",
+            "homepage": "https://2am.tech"
+        }
+    ],
+    "keywords": [
+        "orion",
+        "polaris",
+        "tenancy",
+        "multi-tenant",
+        "search"
+    ],
+    "require": {
+        "php": ">=8.3",
+        "orion-search/core": "^0.1",
+        "polaris/core": "^0.11"
+    },
+    "autoload": {
+        "psr-4": {
+            "Orion\\Polaris\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Orion\\Polaris\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "0.1.x-dev"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
