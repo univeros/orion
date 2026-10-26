@@ -124,10 +124,9 @@ final readonly class ProductsMiddleware implements MiddlewareInterface
         $q = $request->getQueryParams()['q'] ?? '';
         $query = Query::on(self::INDEX)->paginate(1, 100);
         $query = is_string($q) && $q !== '' ? $query->match('title', $q) : $query;
-        $engine = $this->graph->engines()->get($current->engine);
-        $target = $this->graph->aliases()->targetOf($current);
-        $engine->flush($target, await: true);
-        $result = $engine->search($target, $query);
+        // The demo reads its own writes at once; a real application lets the engine refresh on its own schedule.
+        $this->graph->engines()->get($current->engine)->flush($this->graph->aliases()->targetOf($current), await: true);
+        $result = $this->graph->searcher()->search($query);
         $ids = array_map(static fn($hit): string => $hit->id, $result->hits);
         sort($ids);
 

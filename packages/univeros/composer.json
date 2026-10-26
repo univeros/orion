@@ -31,6 +31,7 @@
     },
     "require-dev": {
         "orion-search/elasticsearch": "^0.1",
+        "orion-search/polaris": "^0.1",
         "orion-search/testing": "^0.1",
         "univeros/doctor": "^2.6",
         "univeros/messaging": "^2.6",
@@ -38,6 +39,7 @@
     },
     "suggest": {
         "orion-search/elasticsearch": "ORION_ENGINE=elasticsearch with ORION_ELASTICSEARCH_URL",
+        "orion-search/polaris": "With univeros/polaris, each request's tenant is its token's active organization",
         "univeros/doctor": "The seven Orion checks join bin/altair doctor, with --fix where it is safe",
         "univeros/messaging": "The drain runs on the bus worker after each commit instead of in the request",
         "univeros/observability": "Orion's counters and the outbox lag gauge go to the framework Meter"

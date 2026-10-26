@@ -14,6 +14,7 @@ use Cycle\Database\DatabaseProviderInterface;
 use InvalidArgumentException;
 use Orion\Adapter\InMemory\InMemoryEngine;
 use Orion\Elasticsearch\ElasticsearchEngine;
+use Orion\Polaris\ActiveOrganization;
 use Orion\Receipt\ReceiptSigner;
 use Orion\Receipt\ReceiptVerifier;
 use Orion\Receipt\SodiumSigner;
@@ -22,6 +23,8 @@ use Orion\Registry\EngineRegistry;
 use Orion\Storage\Storage;
 use Orion\Tenancy\Tenancy;
 use Orion\Wiring\Config;
+use Polaris\Authorization\Gate;
+use Polaris\Contract\TokenInterface;
 use Psr\Clock\ClockInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
@@ -29,6 +32,7 @@ use Psr\SimpleCache\CacheInterface;
 use Throwable;
 use Univeros\Orion\Database\CycleStorage;
 use Univeros\Orion\Doctor\Probe;
+use Univeros\Orion\Http\RequestToken;
 use Univeros\Orion\Messaging\BusDispatcher;
 use Univeros\Orion\Observability\MeterMetrics;
 
@@ -48,7 +52,8 @@ use function trim;
 /**
  * Orion's {@see Config} from what the application's container binds and its environment (docs/spec/revision.md §5).
  * A binding always wins over the environment. Storage is Orion's SQL on the host's Cycle connection, so the outbox
- * commits with the entities; tenancy has no default and must be chosen; receipt keys are the host's. The engine is
+ * commits with the entities; tenancy has no default and must be chosen, and where univeros/polaris is configured it is
+ * each request's active organization; receipt keys are the host's. The engine is
  * `ORION_ENGINE` (`elasticsearch` with `ORION_ELASTICSEARCH_URL`, once the host installs that adapter, or `memory` for
  * development), unless the application binds an `EngineRegistry`.
  */
@@ -162,11 +167,34 @@ final class OrionConfig
         if ($bound !== null) {
             return $bound;
         }
+        $choice = self::string($env, self::TENANCY);
+        if ($container->has(Gate::class)) {
+            return self::polaris($container, $choice);
+        }
 
-        return match (self::string($env, self::TENANCY)) {
+        return match ($choice) {
             'single' => Tenancy::single(),
-            default => throw new InvalidConfigurationException(sprintf('Choose Orion\'s tenancy: set %s=single for one tenant, or bind an Orion\Tenancy\Tenancy (the Polaris bridge does, from WP6). There is no default, so no index is shared by accident.', self::TENANCY)),
+            'polaris' => throw new InvalidConfigurationException(sprintf('%s=polaris takes tenants from univeros/polaris, which this application does not configure.', self::TENANCY)),
+            default => throw new InvalidConfigurationException(sprintf('Choose Orion\'s tenancy: set %s=single for one tenant, install univeros/polaris for one per organization, or bind an Orion\Tenancy\Tenancy. There is no default, so no index is shared by accident.', self::TENANCY)),
         };
+    }
+
+    /**
+     * Where univeros/polaris decides tenants, Orion takes each request's from its token. Single tenancy there would let
+     * every organization read every other's documents, so only an explicit binding can choose it.
+     */
+    private static function polaris(Container $container, ?string $choice): Tenancy
+    {
+        if ($choice !== null && $choice !== 'polaris') {
+            throw new InvalidConfigurationException(sprintf('univeros/polaris is installed, so Orion takes each request\'s tenant from its token, and %s=%s is refused: unset it, or bind Orion\Tenancy\Tenancy to Tenancy::single() if this application really has one tenant.', self::TENANCY, $choice));
+        }
+        if (!class_exists(ActiveOrganization::class)) {
+            throw new InvalidConfigurationException('univeros/polaris is installed: composer require orion-search/polaris, so Orion can take tenants from its token.');
+        }
+
+        return Tenancy::resolvedBy(new ActiveOrganization(static function () use ($container): ?TokenInterface {
+            return self::get($container, RequestToken::class)->current();
+        }));
     }
 
     private static function signer(Env $env): ?ReceiptSigner

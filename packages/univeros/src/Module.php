@@ -11,6 +11,7 @@ use Altair\Doctor\Doctor;
 use Altair\Messaging\Discovery\HandlerEntry;
 use Altair\Messaging\Discovery\HandlerRegistry;
 use Altair\Module\Contracts\ManifestContributorInterface;
+use Altair\Module\Contracts\MiddlewareProviderInterface;
 use Altair\Module\Contracts\MigrationDirectoriesProviderInterface;
 use Altair\Module\Contracts\ModuleInterface;
 use Altair\Module\Migration\MigrationSource;
@@ -18,8 +19,10 @@ use Orion\Manifest\Loader;
 use Orion\Orion;
 use Orion\Outbox\Dispatcher;
 use Orion\Outbox\Outbox;
+use Orion\Query\Searcher;
 use Orion\Wiring\Graph;
 use Override;
+use Polaris\Contract\TokenInterface as PolarisToken;
 use Univeros\Orion\AgentSpec\ManifestSection;
 use Univeros\Orion\Bootstrap\OrionConfig;
 use Univeros\Orion\Doctor\AliasResolvesCheck;
@@ -30,15 +33,17 @@ use Univeros\Orion\Doctor\Probe;
 use Univeros\Orion\Doctor\ReceiptsVerifyCheck;
 use Univeros\Orion\Doctor\RegistryCurrentCheck;
 use Univeros\Orion\Doctor\SchemaDriftCheck;
+use Univeros\Orion\Http\RequestToken;
 use Univeros\Orion\Messaging\DrainIndex;
 use Univeros\Orion\Messaging\DrainIndexHandler;
 
 use function dirname;
+use function interface_exists;
 
 /**
  * Orion as a Univeros module: one line in `config/modules.php`.
  */
-final class Module implements ModuleInterface, MigrationDirectoriesProviderInterface, ManifestContributorInterface
+final class Module implements ModuleInterface, MigrationDirectoriesProviderInterface, ManifestContributorInterface, MiddlewareProviderInterface
 {
     /** The doctor checks, in the order they run. */
     private const array CHECKS = [
@@ -68,6 +73,8 @@ final class Module implements ModuleInterface, MigrationDirectoriesProviderInter
         $container->singleton(Orion::class, static fn(Container $c): Orion => Orion::create(OrionConfig::fromContainer($c, self::env($c))));
         $container->singleton(Graph::class, static fn(Orion $orion): Graph => $orion->graph());
         $container->singleton(Outbox::class, static fn(Graph $graph): Outbox => $graph->outbox());
+        $container->singleton(Searcher::class, static fn(Graph $graph): Searcher => $graph->searcher());
+        $container->singleton(RequestToken::class);
         $container->singleton(Dispatcher::class, static fn(Graph $graph): Dispatcher => $graph->dispatcher());
         $container->singleton(DrainIndexHandler::class);
 
@@ -132,5 +139,16 @@ final class Module implements ModuleInterface, MigrationDirectoriesProviderInter
     public function migrationDirectories(): array
     {
         return [new MigrationSource(dirname(__DIR__) . '/migrations', __NAMESPACE__ . '\\Migrations')];
+    }
+
+    /**
+     * With Polaris installed, each request's verified token is captured after authentication for the tenant resolver.
+     *
+     * @return list<array{middleware: class-string<RequestToken>, priority: int}>
+     */
+    #[Override]
+    public function middleware(): array
+    {
+        return interface_exists(PolarisToken::class) ? [['middleware' => RequestToken::class, 'priority' => RequestToken::PRIORITY]] : [];
     }
 }
