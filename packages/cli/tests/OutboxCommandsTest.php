@@ -49,7 +49,10 @@ final class OutboxCommandsTest extends CliTestCase
         [$broken, $bad] = $this->orion('verify');
 
         self::assertSame(0, $ok);
-        self::assertData(['receipts' => 2, 'ok' => true, 'breaks' => []], $good);
+        self::assertData(['receipts' => 2, 'ok' => true, 'breaks' => [], 'head' => ['sequence' => 2, 'hash' => $good['head']['hash']]], $good);
+        [$anchored, $cut] = $this->orion('verify', ['--head' => '3:' . $good['head']['hash']]);
+        self::assertSame(1, $anchored);
+        self::assertContains('the chain does not reach the anchored receipt 3', $cut['breaks']);
         self::assertSame([1, false], [$broken, $bad['ok']]);
     }
 
