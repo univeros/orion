@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace Univeros\Orion\Tests\Database;
 
+use Orion\Wiring\Config;
+use Orion\Tenancy\Tenancy;
+use Orion\Registry\EngineRegistry;
+use Orion\Orion;
+use Orion\Adapter\InMemory\InMemoryEngine;
 use Cycle\Database\Config\DatabaseConfig;
 use Cycle\Database\Config\SQLite\FileConnectionConfig;
 use Cycle\Database\Config\SQLiteDriverConfig;
@@ -36,7 +41,7 @@ final class ReadReplicaTest extends TestCase
         ]));
         $database = $manager->database();
         CycleInstaller::install($database);
-        $outbox = new Outbox(CycleStorage::on($database), new FixedClock());
+        $outbox = Orion::create(new Config(storage: CycleStorage::on($database), engines: new EngineRegistry(memory: new InMemoryEngine()), tenancy: Tenancy::single(), clock: new FixedClock()))->graph()->outbox();
 
         $database->transaction(static function () use ($outbox): void {
             self::assertSame(1, $outbox->index(IndexName::of('products'), 'p1', ['title' => 'Lamp'])->offset);
