@@ -33,10 +33,9 @@ final class SolrServer
     {
         return [
             'disjunction with everything' => static fn(): array => ['q' => 'title:running OR *:*', 'rows' => 100],
-            'boosted function' => static fn(): array => ['q' => '{!boost b=1}*:*', 'rows' => 100],
-            'knn' => static fn(): array => ['q' => '{!knn f=embedding topK=5}[1.0,0.0,0.0]', 'rows' => 100],
+            'edismax with a boost function' => static fn(): array => ['q' => 'running', 'defType' => 'edismax', 'qf' => 'title', 'bf' => 'sum(price,1)', 'rows' => 100],
             'own filter query' => static fn(): array => ['q' => '*:*', 'fq' => 'sku:[* TO *]', 'rows' => 100],
-            'own parameter' => static fn(): array => ['q' => '{!lucene v=$all}', 'all' => '*:*', 'rows' => 100],
+            'function sort' => static fn(): array => ['q' => '*:*', 'sort' => 'sum(price,stock) desc', 'rows' => 100],
         ];
     }
 
@@ -52,6 +51,9 @@ final class SolrServer
             'json facets' => static fn(): array => ['q' => '*:*', 'json.facet' => '{"b":{"type":"terms","field":"brand"}}'],
             'stats' => static fn(): array => ['q' => '*:*', 'stats' => 'true', 'stats.field' => 'price'],
             'a join' => static fn(): array => ['q' => '{!join from=brand to=brand}*:*'],
+            'a join nested in a quoted value' => static fn(): array => ['q' => "{!lucene v='{!join from=brand to=brand}title:hiking'}"],
+            'an escaped nested join' => static fn(): array => ['q' => '_query_:"{\\!join from=brand to=brand}title:hiking"'],
+            'document frequency' => static fn(): array => ['q' => '*:*', 'sort' => "docfreq(title,'hiking') desc"],
         ];
     }
 }

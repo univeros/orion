@@ -66,6 +66,26 @@ final class NativeScopeTest extends TestCase
         yield 'xml query parser' => [['q' => '{!xmlparser}<MatchAllDocsQuery/>']];
         yield 'debugging output' => [['q' => '*:*', 'debugQuery' => 'true']];
         yield 'another request handler' => [['q' => '*:*', 'qt' => '/admin']];
+        // The security review's bypasses of a parser deny-list, each verified as an oracle on Solr 9 and 10.
+        yield 'a join nested in a quoted value' => [['q' => "{!lucene v='{!join from=brand to=brand}title:secret'}"]];
+        yield 'a parser named through a parameter' => [['q' => '{!type=$t from=brand to=brand v="title:secret"}', 't' => 'join']];
+        yield 'an escaped nested query' => [['q' => '_query_:"{\\!join from=brand to=brand}title:secret"']];
+        yield 'an escaped join from another collection' => [['q' => '{\\!join method=crossCollection fromIndex=other from=brand to=brand}title:secret']];
+        yield 'a nested query magic field' => [['q' => 'title:x OR _QUERY_:"title:y"']];
+        yield 'a function magic field' => [['q' => '_val_:"numdocs()"']];
+        yield 'a rerank query' => [['q' => '*:*', 'rq' => '{!rerank reRankQuery=$rrq}', 'rrq' => 'title:x']];
+        yield 'a function sort over a nested query' => [['q' => '*:*', 'sort' => "query({!lucene v='title:x'}) desc"]];
+        yield 'a highlight query' => [['q' => '*:*', 'hl' => 'true', 'hl.q' => '{!join from=a to=b}*:*']];
+        yield 'any local parameters' => [['q' => '{!knn f=embedding topK=5}[1.0,0.0]']];
+        yield 'document frequency across tenants' => [['q' => '*:*', 'defType' => 'edismax', 'bf' => "docfreq(title,'secret')"]];
+        yield 'collection statistics in a sort' => [['q' => '*:*', 'sort' => 'numdocs() desc']];
+        yield 'term statistics in a boost' => [['q' => '*:*', 'defType' => 'edismax', 'boost' => 'ttf(title,secret)']];
+        yield 'a function parser by default' => [['q' => "docfreq(title,'secret')", 'defType' => 'func']];
+        yield 'a parameter Solr reads by its camel-case name' => [['q' => '*:*', 'useParams' => 'reveal']];
+        yield 'more rows than a page' => [['q' => '*:*', 'rows' => 1001]];
+        yield 'a parser chosen for the highlight query' => [['q' => '*:*', 'hl' => 'true', 'hl.q' => 'title:x', 'hl.qparser' => 'join']];
+        yield 'a magic field spelled in unicode escapes' => [['q' => '_va\\u006c_:"numdocs()"']];
+        yield 'a rerank parameter' => [['q' => '*:*', 'rq' => 'title:x']];
     }
 
     /**
@@ -81,11 +101,11 @@ final class NativeScopeTest extends TestCase
 
     public function testAScopedNativeRequestMayStillQueryAndPage(): void
     {
-        $native = ['q' => '{!edismax qf=title v=$text}', 'text' => 'boot', 'defType' => 'lucene', 'sort' => 'price asc', 'start' => 10, 'rows' => 10, 'hl' => 'true', 'hl.fl' => 'title', 'mm' => '1'];
+        $native = ['q' => 'boot OR title:"trail running"', 'defType' => 'edismax', 'qf' => 'title^2 sku', 'bf' => 'recip(ms(NOW,released),3.16e-11,1,1)', 'sort' => 'price asc,score desc', 'start' => 10, 'rows' => 10, 'hl' => 'true', 'hl.fl' => 'title', 'mm' => '1', 'note' => 'mine'];
 
         $params = NativeScope::request($native, ['{!term f=org_id v=$orion_scope1}'], ['orion_scope1' => 'acme']);
 
-        self::assertSame('boot', $params['text']);
+        self::assertSame('mine', $params['note']);
         self::assertSame('10', $params['start']);
     }
 
