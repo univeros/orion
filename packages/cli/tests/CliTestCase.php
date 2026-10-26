@@ -50,7 +50,10 @@ abstract class CliTestCase extends TestCase
         $this->app = $this->freshOrion();
     }
 
-    protected function freshOrion(): Orion
+    /**
+     * @param list<string>|null $manifests
+     */
+    protected function freshOrion(?array $manifests = null): Orion
     {
         return Orion::create(new Config(
             storage: $this->storage = new InMemoryStorage(),
@@ -58,7 +61,20 @@ abstract class CliTestCase extends TestCase
             tenancy: Tenancy::single(),
             clock: $this->clock = new SettableClock(new DateTimeImmutable('2026-10-26 12:00:00+00:00')),
             receiptSigner: SodiumSigner::fromSeed(str_repeat("\x04", 32), 'cli'),
+            manifestDirectories: $manifests,
         ));
+    }
+
+    /**
+     * A directory holding one `search.yaml`.
+     */
+    protected function manifest(string $yaml): string
+    {
+        $directory = $this->directory . '/api-' . uniqid();
+        mkdir($directory);
+        file_put_contents($directory . '/search.yaml', $yaml);
+
+        return $directory;
     }
 
     /**

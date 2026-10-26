@@ -27,7 +27,7 @@ final class PlanCommand extends OrionCommand
     {
         $graph = $this->context->graph($input);
         $index = Context::index($input);
-        $schema = Context::schema($input->getOption('schema'), $index);
+        $schema = Context::declared($input, $graph, $index);
         $engine = Context::engine($input, $graph, $index);
         $built = $graph->aliases()->current($index) !== null;
         $plan = $graph->planner($engine)->plan($schema);

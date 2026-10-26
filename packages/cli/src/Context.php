@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Orion\Cli;
 
+use Closure;
 use InvalidArgumentException;
 use Orion\IndexName;
+use Orion\Manifest\Loader;
 use Orion\Orion;
 use Orion\Schema\IndexSchema;
 use Orion\Schema\MigrationPlan;
@@ -14,9 +16,11 @@ use Orion\Wiring\Graph;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Yaml\Yaml;
 
+use function array_key_exists;
 use function count;
 use function file_get_contents;
 use function implode;
+use function is_array;
 use function is_file;
 use function is_string;
 use function json_decode;
@@ -33,14 +37,25 @@ use const JSON_THROW_ON_ERROR;
 final class Context
 {
     private ?Orion $loaded = null;
+    /** @var (Closure(): Orion)|null */
+    private readonly ?Closure $resolve;
 
-    public function __construct(private readonly ?Orion $orion = null)
+    /**
+     * @param Orion|(Closure(): Orion)|null $orion the host's Orion, or how to build it when a command first needs it
+     *                                            (so a console boots without Orion configured); the bootstrap file
+     *                                            when null
+     */
+    public function __construct(Orion|Closure|null $orion = null)
     {
+        $this->loaded = $orion instanceof Orion ? $orion : null;
+        $this->resolve = $orion instanceof Closure ? $orion : null;
     }
 
     public function graph(InputInterface $input): Graph
     {
-        return ($this->orion ?? ($this->loaded ??= Bootstrap::load($input->getOption('bootstrap'))))->graph();
+        $this->loaded ??= $this->resolve === null ? Bootstrap::load($input->getOption('bootstrap')) : ($this->resolve)();
+
+        return $this->loaded->graph();
     }
 
     public static function index(InputInterface $input): IndexName
@@ -49,8 +64,8 @@ final class Context
     }
 
     /**
-     * A schema file in the declarative form (`IndexSchema::toArray()`), as JSON or YAML; when an index is named, the
-     * file must declare that index. The `search:` manifest (WP8) replaces the file.
+     * A schema file: a `search:` manifest, or the schema's declarative form (`IndexSchema::toArray()`), as YAML or JSON;
+     * when an index is named, the file must declare that index.
      */
     public static function schema(mixed $file, ?IndexName $index = null): IndexSchema
     {
@@ -58,8 +73,9 @@ final class Context
         if (!is_file($file)) {
             throw new InvalidArgumentException(sprintf('The schema file %s does not exist.', $file));
         }
-        $data = str_ends_with($file, '.json') ? json_decode((string) file_get_contents($file), true, 512, JSON_THROW_ON_ERROR) : Yaml::parseFile($file);
-        $schema = IndexSchema::fromArray($data);
+        $data = str_ends_with($file, '.json') ? json_decode((string) file_get_contents($file), true, 512, JSON_THROW_ON_ERROR) : Yaml::parseFile($file, Yaml::PARSE_EXCEPTION_ON_INVALID_TYPE);
+        // A search: manifest declares its fields under `schema`; the schema's own form under `fields`.
+        $schema = is_array($data) && array_key_exists('schema', $data) ? Loader::read($file)->schema : IndexSchema::fromArray($data);
         if ($index !== null && !$schema->index->equals($index)) {
             throw new InvalidArgumentException(sprintf('%s declares %s, not %s.', $file, Assert::show($schema->index->value), Assert::show($index->value)));
         }
@@ -68,12 +84,28 @@ final class Context
     }
 
     /**
-     * `--engine`, else the engine that built the index, else the only engine configured.
+     * The schema declared for the index: the `--schema` file when given, else the `search:` manifest.
+     */
+    public static function declared(InputInterface $input, Graph $graph, IndexName $index): IndexSchema
+    {
+        $file = $input->hasOption('schema') ? $input->getOption('schema') : null;
+        if (is_string($file) && $file !== '') {
+            return self::schema($file, $index);
+        }
+
+        $declared = $graph->manifest()->find($index->value);
+
+        return $declared !== null ? $declared->schema : throw new InvalidArgumentException(sprintf('No search: manifest declares %s; declare it, or pass --schema=<file>.', Assert::show($index->value)));
+    }
+
+    /**
+     * `--engine`, else the engine that built the index, else the one its manifest names, else the only one configured.
      */
     public static function engine(InputInterface $input, Graph $graph, IndexName $index): string
     {
         $option = $input->hasOption('engine') ? $input->getOption('engine') : null;
-        $built = $graph->aliases()->current($index)?->engine;
+        $current = $graph->aliases()->current($index);
+        $built = $current !== null ? $current->engine : $graph->manifest()->find($index->value)?->engine;
         if (is_string($option) && $option !== '') {
             $graph->engines()->get($option);
             if ($built !== null && $built !== $option) {

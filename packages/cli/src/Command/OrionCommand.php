@@ -51,7 +51,7 @@ abstract class OrionCommand extends Command
 
     protected function withSchema(): static
     {
-        return $this->addOption('schema', 's', InputOption::VALUE_REQUIRED, 'The index schema as a JSON or YAML file (IndexSchema::toArray() form)');
+        return $this->addOption('schema', 's', InputOption::VALUE_REQUIRED, 'The index schema as a JSON or YAML file (IndexSchema::toArray() form); the search: manifest when omitted');
     }
 
     protected function withEngine(): static

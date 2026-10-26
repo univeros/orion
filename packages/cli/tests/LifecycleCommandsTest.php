@@ -24,6 +24,29 @@ final class LifecycleCommandsTest extends CliTestCase
         self::assertSame(['sku', 'title'], self::paths($out['plan']['changes']));
     }
 
+    public function testWithoutASchemaFileTheManifestDeclaresTheIndex(): void
+    {
+        $this->app = $this->freshOrion([$this->manifest("index: products\nengine: memory\nschema:\n  title: { type: text, language: en }\n")]);
+
+        [$code, $out] = $this->orion('apply', ['index' => 'products']);
+        [$drift, $report] = $this->orion('drift', ['--check' => true]);
+        [$missing, $error] = $this->orion('plan', ['index' => 'orders']);
+
+        self::assertSame([0, 'created'], [$code, $out['operation']]);
+        self::assertSame([0, true], [$drift, $report['in_sync']]);
+        self::assertSame(1, $missing);
+        self::assertStringContainsString('manifest', $error['error']['message']);
+    }
+
+    public function testASchemaFileMayBeAManifest(): void
+    {
+        $manifest = $this->manifest("index: products\nschema:\n  title: { type: text, language: en }\n") . '/search.yaml';
+
+        [$code, $out] = $this->orion('plan', ['index' => 'products', '--schema' => $manifest]);
+
+        self::assertSame([0, ['title']], [$code, self::paths($out['plan']['changes'])]);
+    }
+
     public function testApplyCreatesTheIndexAndPrintsItsReceipt(): void
     {
         $schema = $this->schemaFile(self::products(), 'yaml');

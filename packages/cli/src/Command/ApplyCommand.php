@@ -31,7 +31,7 @@ final class ApplyCommand extends OrionCommand
     {
         $graph = $this->context->graph($input);
         $index = Context::index($input);
-        $schema = Context::schema($input->getOption('schema'), $index);
+        $schema = Context::declared($input, $graph, $index);
         $engine = Context::engine($input, $graph, $index);
         if ($input->getOption('dry-run') === true) {
             $built = $graph->aliases()->current($index) !== null;

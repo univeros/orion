@@ -39,7 +39,7 @@ final class ReindexCommand extends OrionCommand
         if ($input->getOption('abort') === true) {
             return new Result(['index' => $index->value, 'aborted' => $reindexer->abort($index)?->physical->value]);
         }
-        $schema = Context::schema($input->getOption('schema'), $index);
+        $schema = Context::declared($input, $graph, $index);
         $batch = Context::count($input->getOption('batch'), 'batch', 1);
         if ($input->getOption('dry-run') === true) {
             $pending = $reindexer->pending($index);

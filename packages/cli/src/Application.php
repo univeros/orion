@@ -32,8 +32,17 @@ final class Application extends Console
     public function __construct(?Orion $orion = null)
     {
         parent::__construct('orion', self::VERSION);
-        $context = new Context($orion);
-        $this->addCommands([
+        $this->addCommands(self::commands(new Context($orion)));
+    }
+
+    /**
+     * Every command on one context, for a host that adds them to its own console (the Univeros module, as `orion:*`).
+     *
+     * @return list<Command\OrionCommand>
+     */
+    public static function commands(Context $context): array
+    {
+        return [
             new PlanCommand($context),
             new ApplyCommand($context),
             new ReindexCommand($context),
@@ -46,6 +55,6 @@ final class Application extends Console
             new DrainCommand($context),
             new RetryCommand($context),
             new KeygenCommand($context),
-        ]);
+        ];
     }
 }
