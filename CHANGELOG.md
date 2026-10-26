@@ -54,7 +54,14 @@ to [Semantic Versioning](https://semver.org/). Every package shares one version 
   `ActiveOrganization`; in `univeros/orion`, tenancy from univeros/polaris through `Http\RequestToken`, the bound
   `Searcher`, and `ORION_ENGINE=elasticsearch` with `ORION_ELASTICSEARCH_URL`.
 
+- WP7: `orion-search/solr`, the SolrCloud 9.x and 10.x adapter (`SolrEngine`, `QueryCompiler`, `NativeScope`, `Schema`,
+  `Configset` with Orion's configset); `ORION_ENGINE=solr` with `ORION_SOLR_URL` in `univeros/orion`; Solr 10 and 9.11
+  in `compose.yaml` and CI.
+
 ### Changed
+- WP7: the engine conformance case also requires that a deleted document is found by no query, that missing sort
+  values come last either way, that only a matching field is highlighted, that `match` on a keyword finds the whole
+  value, that term filters read values as their fields declare, and that `exists` works on an object.
 - WP6: under a tenant resolver, `Outbox::index()` and `delete()` record as the current tenant (qualified id, org key
   stamped) and `Planner::apply()` and `Reindexer::reindex()` refuse a schema whose org key does not fit the tenancy or
   that changes the org key of an index holding documents; `Outbox`, `Planner` and `Reindexer` take a `ScopeInjector`.

@@ -20,10 +20,11 @@ Two honest sentences: the lifecycle is deterministic and provably so; ranking is
 | `orion-search/pdo` | `Orion\Pdo\` | Storage on your PDO connection (PostgreSQL, MySQL, SQLite), table installer. |
 | `orion-search/elasticsearch` | `Orion\Elasticsearch\` | Engine adapter for Elasticsearch 8.19 and 9.x. |
 | `orion-search/cli` | `Orion\Cli\` | `bin/orion`: plan, apply, reindex, prune, drift, status, flush, verify, the outbox drain. YAML or deterministic JSON. |
+| `orion-search/solr` | `Orion\Solr\` | Engine adapter for SolrCloud 9.x and 10.x. |
 | `orion-search/polaris` | `Orion\Polaris\` | Tenancy from Polaris: the tenant is the active organization on the verified token. |
 | `univeros/orion` | `Univeros\Orion\` | The Univeros module: one line in `config/modules.php`; storage on the host's Cycle connection, migration, `orion:*` commands, doctor checks. |
 
-More packages (PSR-15 endpoint, Solr, OpenSearch, Meilisearch)
+More packages (PSR-15 endpoint, OpenSearch, Meilisearch)
 are added as their work package starts; see [`docs/spec/revision.md`](docs/spec/revision.md) §1 and §7.
 
 ## How it fits together
