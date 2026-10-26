@@ -1,0 +1,6 @@
+# The products index: what Orion builds, diffs and reindexes. Change it and `bin/altair orion:drift --check` says so.
+index: products
+engine: elasticsearch
+schema:
+  title: { type: text, language: en }
+  sku: { type: keyword, filterable: true }

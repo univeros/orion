@@ -105,4 +105,34 @@ jobs:
       - name: Conformance
         run: vendor/bin/phpunit --group elasticsearch8 --fail-on-skipped
 
+  demo:
+    name: Univeros demo walkthrough
+    runs-on: ubuntu-latest
+    services:
+      elasticsearch:
+        image: elasticsearch:9.5.5
+        env:
+          discovery.type: single-node
+          xpack.security.enabled: 'false'
+          ES_JAVA_OPTS: -Xms512m -Xmx512m
+        ports: ['9200:9200']
+        options: --health-cmd "curl -fs http://localhost:9200/_cluster/health" --health-interval 10s --health-timeout 5s --health-retries 30
+    env:
+      ORION_ELASTICSEARCH_URL: http://127.0.0.1:9200
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: sodium, mbstring, pdo_sqlite, sqlite3
+          coverage: none
+      - name: Install the demo
+        working-directory: examples/univeros
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Set up and run the walkthrough
+        working-directory: examples/univeros
+        run: |
+          bin/setup
+          bin/walkthrough.sh
+
   # Further engine service containers join with their work packages (docs/spec/revision.md §7).

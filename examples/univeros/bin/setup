@@ -1,0 +1,42 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/*
+ * One-time setup: .env with absolute paths and a generated Ed25519 receipt key, then the schema through
+ * `bin/altair db:migrate` (the application's products table and the Orion module's tables), and the products index
+ * built from its manifest with `orion:apply`. Safe to run again.
+ */
+
+$root = dirname(__DIR__);
+chdir($root);
+require $root . '/vendor/autoload.php';
+
+if (!is_file("$root/.env")) {
+    umask(0077); // .env holds the receipt signing key: never world-readable, not even for a moment
+    $env = (string) file_get_contents("$root/.env.example");
+    // Absolute paths: `php -S -t public` runs with public/ as its working directory.
+    $env = (string) preg_replace('/^DB_DATABASE=.*$/m', 'DB_DATABASE=' . "$root/var/orion.sqlite", $env);
+    $env = (string) preg_replace('/^ORION_MANIFESTS=.*$/m', 'ORION_MANIFESTS=' . "$root/api", $env);
+    $url = getenv('ORION_ELASTICSEARCH_URL');
+    if (is_string($url) && $url !== '') {
+        $env = (string) preg_replace('/^ORION_ELASTICSEARCH_URL=.*$/m', 'ORION_ELASTICSEARCH_URL=' . $url, $env);
+    }
+    $pair = Orion\Receipt\SodiumSigner::generateKeyPair();
+    $env = (string) preg_replace('/^ORION_RECEIPT_KID=.*$/m', 'ORION_RECEIPT_KID=demo-1', $env);
+    $env = (string) preg_replace('/^ORION_RECEIPT_SECRET_KEY=.*$/m', 'ORION_RECEIPT_SECRET_KEY=' . $pair['secret_key'], $env);
+    file_put_contents("$root/.env", $env);
+    chmod("$root/.env", 0600);
+    echo "created .env (with a new receipt key, kid demo-1)\n";
+}
+
+foreach (['db:migrate', 'orion:apply products'] as $command) {
+    echo "\n$ bin/altair $command\n";
+    passthru(PHP_BINARY . ' ' . escapeshellarg("$root/bin/altair") . ' ' . $command, $status);
+    if ($status !== 0) {
+        fwrite(STDERR, "bin/altair $command failed ($status)\n");
+        exit($status);
+    }
+}
+echo "\nNext: composer serve   then   bin/walkthrough.sh\n";

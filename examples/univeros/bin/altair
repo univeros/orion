@@ -1,0 +1,32 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/*
+ * The application's console: the container first (configurations, then the modules), then the framework's built-in
+ * commands, then the Orion commands as orion:*, so db:migrate finds the module's migration and orion:* run on the
+ * application's bindings.
+ */
+
+use Altair\Cli\Application;
+use Altair\Cli\Configuration\CliConfiguration;
+use Altair\Container\Container;
+use Univeros\Orion\Console\Commands;
+
+$root = dirname(__DIR__);
+require $root . '/vendor/autoload.php';
+chdir($root); // db:migrate resolves database/migrations and a relative DB_DATABASE against the project root
+
+/** @var Container $container */
+$container = require $root . '/config/container.php';
+
+$paths = glob($root . '/vendor/univeros/framework/src/Altair/*/Cli') ?: []; // the framework's built-in commands
+(new CliConfiguration(array_filter($paths, is_dir(...))))->apply($container);
+
+$application = $container->make(Application::class);
+foreach (Commands::all($container) as $command) {
+    $application->add($command);
+}
+
+exit($application->run());

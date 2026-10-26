@@ -1,0 +1,48 @@
+{
+    "name": "univeros/orion-example",
+    "description": "univeros/orion demo: the Univeros skeleton with the Orion module on SQLite and Elasticsearch",
+    "type": "project",
+    "license": "MIT",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../packages/*",
+            "options": {
+                "symlink": true,
+                "versions": {
+                    "univeros/orion": "0.1.x-dev",
+                    "orion-search/core": "0.1.x-dev",
+                    "orion-search/pdo": "0.1.x-dev",
+                    "orion-search/cli": "0.1.x-dev",
+                    "orion-search/elasticsearch": "0.1.x-dev",
+                    "orion-search/testing": "0.1.x-dev"
+                }
+            }
+        }
+    ],
+    "require": {
+        "php": ">=8.3",
+        "ext-pdo_sqlite": "*",
+        "ext-sodium": "*",
+        "guzzlehttp/guzzle": "^7.9",
+        "orion-search/elasticsearch": "0.1.x-dev",
+        "univeros/framework": "^2.6",
+        "univeros/orion": "0.1.x-dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "scripts": {
+        "serve": "php -S 127.0.0.1:8080 -t public"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": false
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
