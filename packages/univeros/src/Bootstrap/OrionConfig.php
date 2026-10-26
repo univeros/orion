@@ -13,6 +13,7 @@ use Altair\Persistence\Exception\InvalidConfigurationException;
 use Cycle\Database\DatabaseProviderInterface;
 use InvalidArgumentException;
 use Orion\Adapter\InMemory\InMemoryEngine;
+use Orion\Elasticsearch\ElasticsearchEngine;
 use Orion\Receipt\ReceiptSigner;
 use Orion\Receipt\ReceiptVerifier;
 use Orion\Receipt\SodiumSigner;
@@ -34,6 +35,7 @@ use Univeros\Orion\Observability\MeterMetrics;
 use function array_filter;
 use function array_map;
 use function array_values;
+use function class_exists;
 use function explode;
 use function is_dir;
 use function realpath;
@@ -46,13 +48,14 @@ use function trim;
 /**
  * Orion's {@see Config} from what the application's container binds and its environment (docs/spec/revision.md §5).
  * A binding always wins over the environment. Storage is Orion's SQL on the host's Cycle connection, so the outbox
- * commits with the entities; tenancy has no default and must be chosen; receipt keys are the host's. Engines are the
- * application's to bind (an `EngineRegistry`), because each engine package is the host's choice; `ORION_ENGINE=memory`
- * gives the in-memory engine for development.
+ * commits with the entities; tenancy has no default and must be chosen; receipt keys are the host's. The engine is
+ * `ORION_ENGINE` (`elasticsearch` with `ORION_ELASTICSEARCH_URL`, once the host installs that adapter, or `memory` for
+ * development), unless the application binds an `EngineRegistry`.
  */
 final class OrionConfig
 {
     public const string ENGINE = 'ORION_ENGINE';
+    public const string ELASTICSEARCH_URL = 'ORION_ELASTICSEARCH_URL';
     public const string TENANCY = 'ORION_TENANCY';
     public const string RECEIPT_KID = 'ORION_RECEIPT_KID';
     public const string RECEIPT_SECRET_KEY = 'ORION_RECEIPT_SECRET_KEY';
@@ -129,12 +132,28 @@ final class OrionConfig
 
         return match ($engine) {
             'memory' => new EngineRegistry(memory: new InMemoryEngine()),
+            'elasticsearch' => new EngineRegistry(elasticsearch: self::elasticsearch($env)),
             default => throw new InvalidConfigurationException(sprintf(
-                'Bind Orion\'s engines in the application: $container->singleton(EngineRegistry::class, fn() => new EngineRegistry(elasticsearch: ElasticsearchEngine::connect($url))); %s=memory gives the in-memory engine for development%s.',
+                'Choose Orion\'s engine: %s=elasticsearch (with %s), %s=memory for development, or bind an Orion\Registry\EngineRegistry%s.',
+                self::ENGINE,
+                self::ELASTICSEARCH_URL,
                 self::ENGINE,
                 $engine === null ? '' : sprintf(' (%s is "%s")', self::ENGINE, $engine),
             )),
         };
+    }
+
+    private static function elasticsearch(Env $env): ElasticsearchEngine
+    {
+        if (!class_exists(ElasticsearchEngine::class)) {
+            throw new InvalidConfigurationException(sprintf('%s=elasticsearch needs the adapter: composer require orion-search/elasticsearch.', self::ENGINE));
+        }
+        $hosts = self::list($env, self::ELASTICSEARCH_URL);
+        if ($hosts === []) {
+            throw new InvalidConfigurationException(sprintf('%s=elasticsearch needs %s, the cluster\'s URL (comma-separated for several hosts).', self::ENGINE, self::ELASTICSEARCH_URL));
+        }
+
+        return ElasticsearchEngine::connect(...$hosts);
     }
 
     private static function tenancy(Container $container, Env $env): Tenancy

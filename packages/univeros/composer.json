@@ -30,6 +30,7 @@
         "univeros/persistence": "^2.6"
     },
     "require-dev": {
+        "orion-search/elasticsearch": "^0.1",
         "orion-search/testing": "^0.1",
         "univeros/doctor": "^2.6",
         "univeros/messaging": "^2.6",

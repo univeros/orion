@@ -15,6 +15,7 @@ use Altair\Observability\Recorder\InMemoryRecorder;
 use Cycle\Database\DatabaseManager;
 use DateTimeImmutable;
 use Orion\Adapter\InMemory\InMemoryEngine;
+use Orion\Elasticsearch\ElasticsearchEngine;
 use Orion\IndexName;
 use Orion\Orion;
 use Orion\Outbox\Dispatcher;
@@ -102,14 +103,29 @@ final class ModuleTest extends TestCase
         $container->get(Orion::class);
     }
 
-    public function testEnginesAreTheApplicationsToBindExceptTheDevelopmentOne(): void
+    public function testTheEngineIsNamedByOrionEngine(): void
     {
-        foreach ([['ORION_TENANCY' => 'single'], ['ORION_ENGINE' => 'elasticsearch', 'ORION_TENANCY' => 'single']] as $env) {
+        $orion = TestHost::boot(['ORION_ENGINE' => 'elasticsearch', 'ORION_ELASTICSEARCH_URL' => 'http://127.0.0.1:1, http://127.0.0.1:2', 'ORION_TENANCY' => 'single'])->get(Orion::class);
+        \assert($orion instanceof Orion);
+
+        self::assertSame(['elasticsearch'], $orion->graph()->engines()->names());
+        self::assertInstanceOf(ElasticsearchEngine::class, $orion->graph()->engines()->get('elasticsearch'));
+    }
+
+    public function testAnEngineTheModuleCannotBuildIsRefusedWithTheVariableNamed(): void
+    {
+        foreach (
+            [
+            'ORION_ENGINE' => ['ORION_TENANCY' => 'single'],
+            'ORION_ELASTICSEARCH_URL' => ['ORION_ENGINE' => 'elasticsearch', 'ORION_TENANCY' => 'single'],
+            'solr' => ['ORION_ENGINE' => 'solr', 'ORION_TENANCY' => 'single'],
+            ] as $named => $env
+        ) {
             try {
                 TestHost::boot($env)->get(Orion::class);
                 self::fail('An engine the module cannot build was accepted.');
             } catch (Throwable $e) {
-                self::assertStringContainsString('EngineRegistry', $e->getMessage());
+                self::assertStringContainsString($named, $e->getMessage());
             }
         }
     }
