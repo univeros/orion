@@ -47,7 +47,20 @@ to [Semantic Versioning](https://semver.org/). Every package shares one version 
   `Graph::manifest()`; `SchemaAdapter::resolve()`; `ElasticsearchEngine::connect()`; the harnesses' `createStorage()`
   hook; `examples/univeros` with `bin/setup` and `bin/walkthrough.sh`, and a CI job running it.
 
+- WP6: tenancy on a shared index. `Orion\Query\Searcher` (`Graph::searcher()`), the one way Orion queries an engine,
+  with the tenant's filter injected beneath every query and the escape hatch; `Tenancy\ScopeInjector`, `IndexScope`
+  and `NoTenant`; `TenantScope::qualify()` and `unqualify()`; `TenancyIsolationTestCase` and `SettableResolver` in
+  `orion-search/testing`, run on the in-memory engine and Elasticsearch 9 and 8.19; `orion-search/polaris` with
+  `ActiveOrganization`; in `univeros/orion`, tenancy from univeros/polaris through `Http\RequestToken`, the bound
+  `Searcher`, and `ORION_ENGINE=elasticsearch` with `ORION_ELASTICSEARCH_URL`.
+
 ### Changed
+- WP6: under a tenant resolver, `Outbox::index()` and `delete()` record as the current tenant (qualified id, org key
+  stamped) and `Planner::apply()` and `Reindexer::reindex()` refuse a schema whose org key does not fit the tenancy or
+  that changes the org key of an index holding documents; `Outbox`, `Planner` and `Reindexer` take a `ScopeInjector`.
+  Elasticsearch's scoped escape hatch refuses document references and `wrapper`, and native mappings cannot touch the
+  org key. `bin/check-imports` matches root namespaces only, reads every source under `packages/` and `examples/`,
+  matches `use` statements in any case and sees group use.
 - WP5: `PdoStorage` delegates to `SqlStorage`; on MySQL, `update()` counts matches with a locking read, so a
   compare-and-set another transaction won no longer counts as a match. The CLI reads schemas and engines from the
   `search:` manifest when `--schema` is not given, and `--schema` accepts a manifest file; `Cli\Context` takes a lazy

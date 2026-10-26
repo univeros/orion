@@ -20,9 +20,10 @@ Two honest sentences: the lifecycle is deterministic and provably so; ranking is
 | `orion-search/pdo` | `Orion\Pdo\` | Storage on your PDO connection (PostgreSQL, MySQL, SQLite), table installer. |
 | `orion-search/elasticsearch` | `Orion\Elasticsearch\` | Engine adapter for Elasticsearch 8.19 and 9.x. |
 | `orion-search/cli` | `Orion\Cli\` | `bin/orion`: plan, apply, reindex, prune, drift, status, flush, verify, the outbox drain. YAML or deterministic JSON. |
+| `orion-search/polaris` | `Orion\Polaris\` | Tenancy from Polaris: the tenant is the active organization on the verified token. |
 | `univeros/orion` | `Univeros\Orion\` | The Univeros module: one line in `config/modules.php`; storage on the host's Cycle connection, migration, `orion:*` commands, doctor checks. |
 
-More packages (PSR-15 endpoint, the Polaris tenancy bridge, Solr, OpenSearch, Meilisearch)
+More packages (PSR-15 endpoint, Solr, OpenSearch, Meilisearch)
 are added as their work package starts; see [`docs/spec/revision.md`](docs/spec/revision.md) §1 and §7.
 
 ## How it fits together
@@ -44,6 +45,8 @@ $graph->outbox()->index(IndexName::of('products'), $product->id, $projector->pro
 $pdo->commit();
 $graph->dispatcher()->dispatch(IndexName::of('products'));   // drain now, or let `orion outbox:drain` do it
 
+$results = $graph->searcher()->search(Query::on('products')->match('title', 'trail shoe'));
+
 $graph->reindexer('elasticsearch')->reindex($changedSchema); // replay into products_v2, swap, signed receipt
 $graph->verifier()->verify();                          // the receipt chain, hashes, signatures, every alias attested
 ```
@@ -52,6 +55,12 @@ Declare indices in `api/<name>/search.yaml` (`index`, `engine`, `schema`, `org_k
 and the doctor read them. Record into the outbox as the last statement of your transaction: writers to one index queue on its offset counter
 until they commit, which is what keeps offsets in commit order. An auditor verifies with public keys only:
 `receiptVerifier: SodiumVerifier::fromBase64(['prod-1' => $publicKey])`.
+
+Tenancy is a choice with no default. `Tenancy::single()` is one tenant. `Tenancy::resolvedBy($resolver)` shares each
+index between tenants: every index then declares an `org_key`, the searcher filters on the current tenant beneath
+every query (the escape hatch included), and outbox writes are recorded under the tenant's ids with the org key
+stamped, so no query returns, overwrites or deletes another tenant's document. `orion-search/polaris` resolves the
+tenant from the Polaris token's active organization.
 
 The same operations from a shell, for people and agents alike:
 

@@ -37,7 +37,11 @@ split-published later. The Univeros module lives here too, as `packages/univeros
   host's Cycle connection, migration, `orion:*` commands, the seven doctor checks with `--fix`, bus dispatcher, Meter
   metrics, agent manifest section), the `search:` manifest's index declarations in core, `SchemaAdapter::resolve()`,
   the harnesses on Cycle storage, and `examples/univeros` with a walkthrough.
-- **WP6 is next**: tenancy. See `docs/spec/revision.md` §7.
+- **WP6 complete** (2026-10-26): tenancy on a shared index. `Graph::searcher()` injects the tenant's filter beneath
+  every query and the escape hatch; outbox writes are tenant-qualified and stamped with the org key; an index's org
+  key must fit the tenancy; `TenancyIsolationTestCase` gates every engine; `orion-search/polaris` resolves the tenant
+  from the Polaris token, and the module wires it when univeros/polaris is configured.
+- **WP7 is next**: the Solr adapter. See `docs/spec/revision.md` §7.
 - Local services for the conformance and determinism suites: `docker compose up -d`, then export `.env.testing`.
 
 ## The rules

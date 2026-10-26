@@ -21,7 +21,7 @@ default except storage, engines and tenancy, which are explicit. Hosts bind port
 ## Invariants to keep
 
 - Outbox rows commit on the caller's connection, in the caller's transaction.
-- Tenancy is chosen explicitly; `TenantScope` applies to every compiled query, escape hatch included.
+- Tenancy is chosen explicitly; `TenantScope` applies to every compiled query, escape hatch included. Query through `Graph::searcher()`, never an adapter directly: it injects the tenant filter, and `NoUnscopedQueryPathTest` fails on any new public path that takes a `Query` outside it. Under a resolver every index declares an org key.
 - Unknown schema change is breaking; unsupported clause is `UnsupportedClause`; missing capability is routed
   around or refused, never silently wrong.
 - Adapters implement primitives only. Orchestration in an adapter is a core bug.
