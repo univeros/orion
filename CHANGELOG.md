@@ -29,6 +29,22 @@ to [Semantic Versioning](https://semver.org/). Every package shares one version 
   ones), `Operation` and `Outcome`; `Graph::registry()`, `aliases()`, `planner()`; `LifecycleDeterminismTestCase` and
   `FixedClock` in `orion-search/testing`.
 
+- WP4: `Storage::increment()` and `Storage\Counters`, so outbox offsets per index are dense and committed in order;
+  the compacted transactional outbox (`Outbox::index()`, `delete()`, `Entry`); the drain (`Drain`, `DrainResult`,
+  `Delivery`) with dead letters and retry; the `Dispatcher` (`SyncDispatcher` by default) and `Metrics` ports;
+  receipts (`Receipt`, `ReceiptSigner`, `SodiumSigner`, `ReceiptStore`, `Verifier`), issued by the planner and the
+  reindexer; the `Reindexer` (replay, leased lock in `orion_reindex`, resume, `abort()`, `prunable()`, `prune()`);
+  `Graph::outbox()`, `drain()`, `deadLetters()`, `dispatcher()`, `metrics()`, `receipts()`, `verifier()`,
+  `reindexer()`; `orion-search/cli` with `bin/orion`; `FaultyEngine`, `FaultyStorage`, `SettableClock` and
+  `FaultInjectionTestCase` in `orion-search/testing`; the determinism harness covers reindex, prune and receipts;
+  `ReceiptVerifier` and `SodiumVerifier` (verification from public keys), `orion verify --head` for an anchored head;
+  `Storage\DuplicateKey`; `AliasingEngine` in `orion-search/testing`.
+
 ### Changed
+- WP4: `orion_outbox` is keyed on (`index_name`, `outbox_offset`) with one row per document; `orion_receipt` is keyed
+  on `sequence` and gains `engine`; `orion_counter`, `orion_dead_letter` and `orion_reindex` are new. `Planner` issues
+  receipts, refuses an apply while a reindex is pending, and reports a query-time-only change as `applied`.
+  `Lifecycle\Operation` gains `reindexed` and `dropped`. `bin/check-imports` confines the Symfony console to the CLI
+  and host packages.
 - WP3: `orion_index` and `orion_alias` columns (provisional until now) take their final shape; `Change::$before` and
   `$after` may hold a declared setting value as well as a field.

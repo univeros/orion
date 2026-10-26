@@ -16,18 +16,55 @@ Two honest sentences: the lifecycle is deterministic and provably so; ranking is
 | Package | Namespace | What it is |
 | --- | --- | --- |
 | `orion-search/core` | `Orion\` | The ASTs, adapter contracts, lifecycle, outbox, receipts, tenancy seam. PSR interfaces only. |
-| `orion-search/testing` | `Orion\Testing\` | In-memory storage, the storage and engine conformance test cases, the lifecycle determinism harness. |
+| `orion-search/testing` | `Orion\Testing\` | In-memory storage, the storage and engine conformance test cases, the lifecycle determinism and fault-injection harnesses. |
 | `orion-search/pdo` | `Orion\Pdo\` | Storage on your PDO connection (PostgreSQL, MySQL, SQLite), table installer. |
 | `orion-search/elasticsearch` | `Orion\Elasticsearch\` | Engine adapter for Elasticsearch 8.19 and 9.x. |
+| `orion-search/cli` | `Orion\Cli\` | `bin/orion`: plan, apply, reindex, prune, drift, status, flush, verify, the outbox drain. YAML or deterministic JSON. |
 
-More packages (PSR-15 endpoint, `bin/orion`, the Polaris tenancy bridge, the Univeros module, Solr, OpenSearch,
-Meilisearch) are added as their work package starts; see [`docs/spec/revision.md`](docs/spec/revision.md) §1 and §7.
+More packages (PSR-15 endpoint, the Polaris tenancy bridge, the Univeros module, Solr, OpenSearch, Meilisearch)
+are added as their work package starts; see [`docs/spec/revision.md`](docs/spec/revision.md) §1 and §7.
+
+## How it fits together
+
+```php
+$orion = Orion::create(new Config(
+    storage: new PdoStorage($pdo),                       // your connection: the outbox commits with your entity
+    engines: new EngineRegistry(elasticsearch: $adapter),
+    tenancy: Tenancy::single(),
+    receiptSigner: SodiumSigner::fromBase64($secretKey, 'prod-1'),
+));
+$graph = $orion->graph();
+
+$graph->planner('elasticsearch')->apply($schema);      // creates products_v1 behind the alias, signed receipt
+
+$pdo->beginTransaction();                              // your write and its outbox entry, one transaction
+saveProduct($pdo, $product);
+$graph->outbox()->index(IndexName::of('products'), $product->id, $projector->project($product));
+$pdo->commit();
+$graph->dispatcher()->dispatch(IndexName::of('products'));   // drain now, or let `orion outbox:drain` do it
+
+$graph->reindexer('elasticsearch')->reindex($changedSchema); // replay into products_v2, swap, signed receipt
+$graph->verifier()->verify();                          // the receipt chain, hashes, signatures, every alias attested
+```
+
+Record into the outbox as the last statement of your transaction: writers to one index queue on its offset counter
+until they commit, which is what keeps offsets in commit order. An auditor verifies with public keys only:
+`receiptVerifier: SodiumVerifier::fromBase64(['prod-1' => $publicKey])`.
+
+The same operations from a shell, for people and agents alike:
+
+```sh
+bin/orion apply products --schema=products.yaml --bootstrap=orion.php --json
+bin/orion reindex products --schema=products.yaml --dry-run
+bin/orion outbox:drain && bin/orion verify --json
+```
 
 ## Status
 
-Work packages 0 to 3 are done: the core ASTs and contracts, storage on PDO, the engine conformance suite, the dev
-in-memory engine, the Elasticsearch adapter, and the schema lifecycle (plan, apply, versioned indices behind an
-alias, the index registry, the determinism harness). Work package 4 (outbox, reindex by replay, receipts, CLI) is
+Work packages 0 to 4 are done: the core ASTs and contracts, storage on PDO, the engine conformance suite, the dev
+in-memory engine, the Elasticsearch adapter, the schema lifecycle (plan, apply, versioned indices behind an alias,
+the index registry), the transactional outbox and its drain, zero-downtime reindex by replay, signed hash-chained
+receipts, `bin/orion`, and the determinism and fault-injection harnesses. Work package 5 (the Univeros module) is
 next; progress is tracked as epics in the repository's issues.
 Nothing is published yet. This repository is the monorepo; each package will be split to a read-only
 repository for Composer when the first tag is cut.

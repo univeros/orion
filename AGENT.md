@@ -28,7 +28,12 @@ split-published later. The Univeros module lives here too, as `packages/univeros
   against the registration, versioned physical indices behind an alias (`IndexNamer`, `AliasManager`,
   `SchemaAdapter::alias()`), the index registry (`orion_index`, `orion_alias`, `IndexRegistration`), `Outcome` as the
   receipt seam, and `LifecycleDeterminismTestCase`, green on the in-memory engine and Elasticsearch 9 and 8.19.
-- **WP4 is next**: outbox, `Reindexer`, receipts, `orion-search/cli`. See `docs/spec/revision.md` §7.
+- **WP4 complete** (2026-10-26): `Storage::increment()` and the counter table (outbox offsets dense and committed in
+  order), the compacted transactional outbox, the drain with dead letters, the `Dispatcher` and `Metrics` ports,
+  signed hash-chained receipts (`ReceiptSigner`, `SodiumSigner`, `ReceiptStore`, `Verifier`), the `Reindexer` (replay,
+  leased lock, resume, abort, prune), `orion-search/cli` (`bin/orion`), and `FaultInjectionTestCase`, green on the
+  in-memory engine and Elasticsearch 9 and 8.19.
+- **WP5 is next**: the Univeros module. See `docs/spec/revision.md` §5 and §7.
 - Local services for the conformance and determinism suites: `docker compose up -d`, then export `.env.testing`.
 
 ## The rules
@@ -37,8 +42,8 @@ split-published later. The Univeros module lives here too, as `packages/univeros
    proposed. Do not lower the level or skip tests to get green.
 2. **Dependency isolation is mechanical.** `bin/check-imports` fails on `Altair\`, `Cycle\` or `Univeros\`
    outside `packages/univeros`; `Polaris\` outside `packages/polaris` and `packages/univeros`; an engine client
-   outside its adapter package. Core depends on PSR interfaces, `symfony/uid`, `symfony/yaml` and `ext-sodium`
-   only.
+   outside its adapter package; the Symfony console outside `packages/cli` and the host packages. Core depends on
+   PSR interfaces, `symfony/uid`, `symfony/yaml` and `ext-sodium` only.
 3. **Dumb adapters, smart neutral core.** An engine adapter implements `SearchAdapter`, `SchemaAdapter`,
    `WriteAdapter` and reports `Capability`; diffing, reindex, alias swap, replay and fusion live once in core.
    If an adapter needs orchestration logic, the core is missing something.
@@ -87,6 +92,7 @@ composer test            # phpunit
 composer stan
 composer cs-fix
 bin/check-imports        # alone
+packages/cli/bin/orion --bootstrap=<file returning Orion or Config> list
 ```
 
 ## Namespaces you will see and must not confuse
