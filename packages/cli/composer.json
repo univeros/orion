@@ -1,0 +1,50 @@
+{
+    "name": "orion-search/cli",
+    "description": "bin/orion for Orion: plan, apply, reindex, prune, drift, status, flush, verify, capabilities and the outbox drain, as deterministic JSON an agent can branch on",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "2am.tech",
+            "homepage": "https://2am.tech"
+        }
+    ],
+    "keywords": [
+        "search",
+        "reindex",
+        "cli",
+        "outbox"
+    ],
+    "require": {
+        "php": ">=8.3",
+        "orion-search/core": "^0.1",
+        "symfony/console": "^7.0 || ^8.0",
+        "symfony/yaml": "^7.0 || ^8.0"
+    },
+    "require-dev": {
+        "orion-search/testing": "^0.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Orion\\Cli\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Orion\\Cli\\Tests\\": "tests/"
+        }
+    },
+    "bin": [
+        "bin/orion"
+    ],
+    "extra": {
+        "branch-alias": {
+            "dev-main": "0.1.x-dev"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

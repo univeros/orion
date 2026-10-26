@@ -11,3 +11,5 @@ parameters:
         - packages/pdo/tests
         - packages/elasticsearch/src
         - packages/elasticsearch/tests
+        - packages/cli/src
+        - packages/cli/tests

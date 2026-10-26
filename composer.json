@@ -24,13 +24,15 @@
                     "orion-search/core": "0.1.x-dev",
                     "orion-search/testing": "0.1.x-dev",
                     "orion-search/pdo": "0.1.x-dev",
-                    "orion-search/elasticsearch": "0.1.x-dev"
+                    "orion-search/elasticsearch": "0.1.x-dev",
+                    "orion-search/cli": "0.1.x-dev"
                 }
             }
         }
     ],
     "require": {
         "php": ">=8.3",
+        "orion-search/cli": "0.1.x-dev",
         "orion-search/core": "0.1.x-dev",
         "orion-search/elasticsearch": "0.1.x-dev",
         "orion-search/pdo": "0.1.x-dev",
@@ -46,7 +48,8 @@
         "psr-4": {
             "Orion\\Tests\\": "packages/core/tests/",
             "Orion\\Pdo\\Tests\\": "packages/pdo/tests/",
-            "Orion\\Elasticsearch\\Tests\\": "packages/elasticsearch/tests/"
+            "Orion\\Elasticsearch\\Tests\\": "packages/elasticsearch/tests/",
+            "Orion\\Cli\\Tests\\": "packages/cli/tests/"
         }
     },
     "scripts": {

@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+// Installed (vendor/orion-search/cli/bin), standalone (packages/cli/vendor) or in the monorepo (packages/cli/bin).
+foreach ([__DIR__ . '/../../../autoload.php', __DIR__ . '/../vendor/autoload.php', __DIR__ . '/../../../vendor/autoload.php'] as $autoload) {
+    if (is_file($autoload)) {
+        require $autoload;
+        break;
+    }
+}
+
+// --bootstrap=<file> or ORION_BOOTSTRAP names the PHP file returning the application's Orion or Config.
+exit((new Orion\Cli\Application())->run());

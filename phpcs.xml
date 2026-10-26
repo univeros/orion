@@ -9,6 +9,9 @@
     <file>packages/pdo/tests</file>
     <file>packages/elasticsearch/src</file>
     <file>packages/elasticsearch/tests</file>
+    <file>packages/cli/src</file>
+    <file>packages/cli/tests</file>
+    <file>packages/cli/bin</file>
 
     <arg name="colors"/>
     <arg name="warning-severity" value="0"/>

@@ -1,7 +1,8 @@
 #!/usr/bin/env sh
 # Dependency isolation by package (docs/spec/revision.md §2). Framework namespaces (Altair\, Cycle\,
 # Univeros\) only inside packages/univeros and examples/univeros; Polaris\ only inside the Polaris
-# bridge and the Univeros module; each engine client only inside its adapter package.
+# bridge and the Univeros module; each engine client only inside its adapter package; the Symfony console
+# only inside the CLI and the host packages that register its commands.
 # Usage: bin/check-imports [root]   (the root defaults to the repository; tests pass a fixture tree)
 set -u
 cd "${1:-$(dirname "$0")/..}" || exit 2
@@ -17,7 +18,8 @@ for rule in \
     'meilisearch:Meilisearch\\' \
     'laravel:Illuminate\\|Laravel\\' \
     'symfony|laravel:Symfony\\Bundle\\|Symfony\\Component\\(HttpKernel|HttpFoundation|DependencyInjection|Security|Config|Routing)\\' \
-    'yii:Yiisoft\\'
+    'yii:Yiisoft\\' \
+    'cli|univeros|symfony|laravel|yii:Symfony\\Component\\Console\\'
 do
     allowed=${rule%%:*}
     pattern=${rule#*:}

@@ -16,6 +16,9 @@
         <testsuite name="elasticsearch">
             <directory>packages/elasticsearch/tests</directory>
         </testsuite>
+        <testsuite name="cli">
+            <directory>packages/cli/tests</directory>
+        </testsuite>
         <!-- Engine and storage conformance; ORION_ENGINE / ORION_STORAGE select the adapter under test, ORION_HARNESS the host. -->
         <testsuite name="conformance">
             <directory>packages/core/tests/Conformance</directory>
@@ -27,6 +30,7 @@
             <directory>packages/testing/src</directory>
             <directory>packages/pdo/src</directory>
             <directory>packages/elasticsearch/src</directory>
+            <directory>packages/cli/src</directory>
         </include>
     </source>
 </phpunit>
