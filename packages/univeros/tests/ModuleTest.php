@@ -16,6 +16,7 @@ use Cycle\Database\DatabaseManager;
 use DateTimeImmutable;
 use Orion\Adapter\InMemory\InMemoryEngine;
 use Orion\Elasticsearch\ElasticsearchEngine;
+use Orion\Solr\SolrEngine;
 use Orion\IndexName;
 use Orion\Orion;
 use Orion\Outbox\Dispatcher;
@@ -112,13 +113,22 @@ final class ModuleTest extends TestCase
         self::assertInstanceOf(ElasticsearchEngine::class, $orion->graph()->engines()->get('elasticsearch'));
     }
 
+    public function testSolrIsNamedByOrionEngineToo(): void
+    {
+        $orion = TestHost::boot(['ORION_ENGINE' => 'solr', 'ORION_SOLR_URL' => 'http://127.0.0.1:1/solr', 'ORION_TENANCY' => 'single'])->get(Orion::class);
+        \assert($orion instanceof Orion);
+
+        self::assertInstanceOf(SolrEngine::class, $orion->graph()->engines()->get('solr'));
+    }
+
     public function testAnEngineTheModuleCannotBuildIsRefusedWithTheVariableNamed(): void
     {
         foreach (
             [
             'ORION_ENGINE' => ['ORION_TENANCY' => 'single'],
             'ORION_ELASTICSEARCH_URL' => ['ORION_ENGINE' => 'elasticsearch', 'ORION_TENANCY' => 'single'],
-            'solr' => ['ORION_ENGINE' => 'solr', 'ORION_TENANCY' => 'single'],
+            'ORION_SOLR_URL' => ['ORION_ENGINE' => 'solr', 'ORION_TENANCY' => 'single'],
+            'meilisearch' => ['ORION_ENGINE' => 'meilisearch', 'ORION_TENANCY' => 'single'],
             ] as $named => $env
         ) {
             try {

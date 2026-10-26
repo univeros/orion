@@ -15,6 +15,7 @@ use InvalidArgumentException;
 use Orion\Adapter\InMemory\InMemoryEngine;
 use Orion\Elasticsearch\ElasticsearchEngine;
 use Orion\Polaris\ActiveOrganization;
+use Orion\Solr\SolrEngine;
 use Orion\Receipt\ReceiptSigner;
 use Orion\Receipt\ReceiptVerifier;
 use Orion\Receipt\SodiumSigner;
@@ -54,13 +55,14 @@ use function trim;
  * A binding always wins over the environment. Storage is Orion's SQL on the host's Cycle connection, so the outbox
  * commits with the entities; tenancy has no default and must be chosen, and where univeros/polaris is configured it is
  * each request's active organization; receipt keys are the host's. The engine is
- * `ORION_ENGINE` (`elasticsearch` with `ORION_ELASTICSEARCH_URL`, once the host installs that adapter, or `memory` for
- * development), unless the application binds an `EngineRegistry`.
+ * `ORION_ENGINE` (`elasticsearch` with `ORION_ELASTICSEARCH_URL` or `solr` with `ORION_SOLR_URL`, once the host installs
+ * that adapter, or `memory` for development), unless the application binds an `EngineRegistry`.
  */
 final class OrionConfig
 {
     public const string ENGINE = 'ORION_ENGINE';
     public const string ELASTICSEARCH_URL = 'ORION_ELASTICSEARCH_URL';
+    public const string SOLR_URL = 'ORION_SOLR_URL';
     public const string TENANCY = 'ORION_TENANCY';
     public const string RECEIPT_KID = 'ORION_RECEIPT_KID';
     public const string RECEIPT_SECRET_KEY = 'ORION_RECEIPT_SECRET_KEY';
@@ -138,10 +140,13 @@ final class OrionConfig
         return match ($engine) {
             'memory' => new EngineRegistry(memory: new InMemoryEngine()),
             'elasticsearch' => new EngineRegistry(elasticsearch: self::elasticsearch($env)),
+            'solr' => new EngineRegistry(solr: self::solr($env)),
             default => throw new InvalidConfigurationException(sprintf(
-                'Choose Orion\'s engine: %s=elasticsearch (with %s), %s=memory for development, or bind an Orion\Registry\EngineRegistry%s.',
+                'Choose Orion\'s engine: %s=elasticsearch (with %s), %s=solr (with %s), %s=memory for development, or bind an Orion\Registry\EngineRegistry%s.',
                 self::ENGINE,
                 self::ELASTICSEARCH_URL,
+                self::ENGINE,
+                self::SOLR_URL,
                 self::ENGINE,
                 $engine === null ? '' : sprintf(' (%s is "%s")', self::ENGINE, $engine),
             )),
@@ -159,6 +164,17 @@ final class OrionConfig
         }
 
         return ElasticsearchEngine::connect(...$hosts);
+    }
+
+    private static function solr(Env $env): SolrEngine
+    {
+        if (!class_exists(SolrEngine::class)) {
+            throw new InvalidConfigurationException(sprintf('%s=solr needs the adapter: composer require orion-search/solr.', self::ENGINE));
+        }
+        $url = self::string($env, self::SOLR_URL)
+            ?? throw new InvalidConfigurationException(sprintf('%s=solr needs %s, a SolrCloud node\'s URL (http://host:8983/solr).', self::ENGINE, self::SOLR_URL));
+
+        return SolrEngine::connect($url);
     }
 
     private static function tenancy(Container $container, Env $env): Tenancy

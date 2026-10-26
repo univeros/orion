@@ -54,7 +54,7 @@ final readonly class EngineReachableCheck implements CheckInterface
             return CheckResult::error(self::NAME, Probe::message($failure), 'Configure Orion: ORION_ENGINE, ORION_TENANCY and the engine\'s URL.');
         }
         if ($failures !== []) {
-            return CheckResult::error(self::NAME, Probe::summary($failures), 'Check the engine\'s URL (ORION_ELASTICSEARCH_URL) and that the server is up.');
+            return CheckResult::error(self::NAME, Probe::summary($failures), 'Check the engine\'s URL (ORION_ELASTICSEARCH_URL, ORION_SOLR_URL) and that the server is up.');
         }
 
         return CheckResult::ok(self::NAME, 'Reachable: ' . implode(', ', $engines->names()) . '.');
