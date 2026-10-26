@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Orion\Polaris;
 
 use Closure;
+use InvalidArgumentException;
 use Orion\Tenancy\NoTenant;
 use Orion\Tenancy\TenantResolver;
 use Orion\Tenancy\TenantScope;
@@ -38,6 +39,10 @@ final readonly class ActiveOrganization implements TenantResolver
             throw new NoTenant('The Polaris token has no active organization: switch to one (POST /auth/switch-org) first.');
         }
 
-        return new TenantScope($organization);
+        try {
+            return new TenantScope($organization);
+        } catch (InvalidArgumentException $invalid) {
+            throw new NoTenant('The Polaris token\'s active organization is not an id Orion can scope to: ' . $invalid->getMessage(), 0, $invalid);
+        }
     }
 }

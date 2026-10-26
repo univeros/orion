@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Univeros\Orion\Tests\Database;
 
-use Orion\Wiring\Config;
-use Orion\Tenancy\Tenancy;
-use Orion\Registry\EngineRegistry;
-use Orion\Orion;
-use Orion\Adapter\InMemory\InMemoryEngine;
 use Cycle\Database\Config\DatabaseConfig;
 use Cycle\Database\Config\SQLite\FileConnectionConfig;
 use Cycle\Database\Config\SQLiteDriverConfig;
 use Cycle\Database\DatabaseManager;
+use Orion\Adapter\InMemory\InMemoryEngine;
 use Orion\IndexName;
+use Orion\Orion;
 use Orion\Outbox\Outbox;
+use Orion\Registry\EngineRegistry;
+use Orion\Tenancy\Tenancy;
 use Orion\Testing\FixedClock;
+use Orion\Wiring\Config;
 use PHPUnit\Framework\TestCase;
 use Univeros\Orion\Database\CycleInstaller;
 use Univeros\Orion\Database\CycleStorage;

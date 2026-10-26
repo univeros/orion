@@ -6,23 +6,42 @@ namespace Univeros\Orion\Http;
 
 use Override;
 use Polaris\Contract\TokenInterface;
+use Polaris\Http\Attributes;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
+use function constant;
+use function defined;
+use function is_int;
+
 /**
  * Holds the verified Polaris token of the request being handled, for the tenant resolver: set after authentication,
- * restored when the request ends, so a long-running worker never carries one request's tenant into the next.
+ * restored when the request ends, so a sequential worker (php-fpm, RoadRunner, FrankenPHP) never carries one request's
+ * tenant into the next. It is one shared object: a runtime that interleaves requests in one process (Swoole
+ * coroutines, fibers) would mix tenants, and is not supported. Orion's operations belong in actions, or in middleware
+ * after {@see priority()}; before it there is no tenant.
  */
 final class RequestToken implements MiddlewareInterface
 {
-    /** `Altair\Http\Support\MiddlewarePriority::ACTION - 10`: after authentication (`DISPATCHER + 5`), before the action. */
-    public const int PRIORITY = 990;
     /** `Altair\Http\Contracts\TokenInterface::TOKEN_KEY`, where the framework's authentication puts the token. */
     public const string ALTAIR_ATTRIBUTE = 'altair:http:token';
-    /** `Polaris\Http\Attributes::TOKEN`, where Polaris' own middleware puts it. */
-    public const string POLARIS_ATTRIBUTE = 'polaris.token';
+    /** Where Polaris' own middleware puts it. */
+    public const string POLARIS_ATTRIBUTE = Attributes::TOKEN;
+    /** The framework's pipeline anchors, read from univeros/http when it is installed. */
+    private const string ACTION = 'Altair\\Http\\Support\\MiddlewarePriority::ACTION';
+    private const int DOCUMENTED_ACTION = 1000;
+
+    /**
+     * Just inside the action: after authentication (`DISPATCHER + 5`) and authorization, so the token is verified.
+     */
+    public static function priority(): int
+    {
+        $action = defined(self::ACTION) ? constant(self::ACTION) : self::DOCUMENTED_ACTION;
+
+        return (is_int($action) ? $action : self::DOCUMENTED_ACTION) - 10;
+    }
 
     private ?TokenInterface $current = null;
 

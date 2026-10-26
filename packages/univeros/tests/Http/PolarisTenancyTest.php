@@ -76,7 +76,9 @@ final class PolarisTenancyTest extends TestCase
 
     public function testTheTokenIsCapturedAfterAuthenticationOnEveryRoute(): void
     {
-        self::assertContains(['middleware' => RequestToken::class, 'priority' => RequestToken::PRIORITY], (new Module())->middleware());
+        self::assertContains(['middleware' => RequestToken::class, 'priority' => RequestToken::priority()], (new Module())->middleware());
+        // Without univeros/http (as here), the framework's documented anchors: ACTION (1000) - 10, after DISPATCHER (500) + 5.
+        self::assertSame(990, RequestToken::priority());
     }
 
     public function testTheSearcherIsBound(): void

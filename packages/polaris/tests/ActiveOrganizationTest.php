@@ -45,6 +45,7 @@ final class ActiveOrganizationTest extends TestCase
         yield 'no active org, as right after login' => [new Token('jwt', ['sub' => 'u1', 'org' => null])];
         yield 'an empty org' => [new Token('jwt', ['org' => ''])];
         yield 'an org that is not a string' => [new Token('jwt', ['org' => ['a', 'b']])];
+        yield 'an org Orion cannot hold as a tenant' => [new Token('jwt', ['org' => 'acme:eu'])];
     }
 
     #[DataProvider('withoutAnOrganization')]

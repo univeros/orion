@@ -149,6 +149,6 @@ final class Module implements ModuleInterface, MigrationDirectoriesProviderInter
     #[Override]
     public function middleware(): array
     {
-        return interface_exists(PolarisToken::class) ? [['middleware' => RequestToken::class, 'priority' => RequestToken::PRIORITY]] : [];
+        return interface_exists(PolarisToken::class) ? [['middleware' => RequestToken::class, 'priority' => RequestToken::priority()]] : [];
     }
 }
