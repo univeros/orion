@@ -13,3 +13,6 @@ parameters:
         - packages/elasticsearch/tests
         - packages/cli/src
         - packages/cli/tests
+        - packages/univeros/src
+        - packages/univeros/tests
+        - packages/univeros/migrations

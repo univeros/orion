@@ -12,6 +12,9 @@
     <file>packages/cli/src</file>
     <file>packages/cli/tests</file>
     <file>packages/cli/bin</file>
+    <file>packages/univeros/src</file>
+    <file>packages/univeros/tests</file>
+    <file>packages/univeros/migrations</file>
 
     <arg name="colors"/>
     <arg name="warning-severity" value="0"/>

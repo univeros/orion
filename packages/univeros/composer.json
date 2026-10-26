@@ -1,0 +1,65 @@
+{
+    "name": "univeros/orion",
+    "description": "Orion as a Univeros module: one line in config/modules.php gives the host Orion on its Cycle connection, the migration, the orion:* commands and the doctor checks",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "2am.tech",
+            "homepage": "https://2am.tech"
+        }
+    ],
+    "keywords": [
+        "univeros",
+        "altair",
+        "search",
+        "elasticsearch",
+        "reindex",
+        "outbox"
+    ],
+    "require": {
+        "php": ">=8.3",
+        "cycle/database": "^2.10",
+        "cycle/migrations": "^4.2",
+        "orion-search/cli": "^0.1",
+        "orion-search/core": "^0.1",
+        "orion-search/pdo": "^0.1",
+        "univeros/configuration": "^2.6",
+        "univeros/container": "^2.6",
+        "univeros/module": "^2.6",
+        "univeros/persistence": "^2.6"
+    },
+    "require-dev": {
+        "orion-search/testing": "^0.1",
+        "univeros/doctor": "^2.6",
+        "univeros/messaging": "^2.6",
+        "univeros/observability": "^2.6"
+    },
+    "suggest": {
+        "orion-search/elasticsearch": "ORION_ENGINE=elasticsearch with ORION_ELASTICSEARCH_URL",
+        "univeros/doctor": "The seven Orion checks join bin/altair doctor, with --fix where it is safe",
+        "univeros/messaging": "The drain runs on the bus worker after each commit instead of in the request",
+        "univeros/observability": "Orion's counters and the outbox lag gauge go to the framework Meter"
+    },
+    "autoload": {
+        "psr-4": {
+            "Univeros\\Orion\\": "src/",
+            "Univeros\\Orion\\Migrations\\": "migrations/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Univeros\\Orion\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "0.1.x-dev"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
