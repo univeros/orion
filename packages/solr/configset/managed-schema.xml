@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The fields every Orion collection starts with; the application's fields are added through the Schema API. No
+  dynamic fields and no copy fields: a field the schema does not declare fails its document.
+-->
+<schema name="orion" version="1.7">
+  <uniqueKey>id</uniqueKey>
+  <fieldType name="orion_id" class="solr.StrField"/>
+  <fieldType name="orion_long" class="solr.LongPointField" docValues="true"/>
+  <fieldType name="orion_flag" class="solr.BoolField" docValues="true"/>
+  <fieldType name="orion_stored" class="solr.StrField" docValues="false"/>
+  <field name="id" type="orion_id" indexed="true" stored="true" required="true"/>
+  <field name="_version_" type="orion_long" indexed="false" stored="false"/>
+  <field name="orion_version" type="orion_long" indexed="true" stored="true"/>
+  <field name="orion_tombstone" type="orion_flag" indexed="true" stored="false"/>
+  <field name="orion_source" type="orion_stored" indexed="false" stored="true"/>
+</schema>

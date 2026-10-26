@@ -38,6 +38,20 @@ jobs:
           ES_JAVA_OPTS: -Xms512m -Xmx512m
         ports: ['9200:9200']
         options: --health-cmd "curl -fs http://localhost:9200/_cluster/health" --health-interval 10s --health-timeout 5s --health-retries 30
+      solr:
+        image: solr:10.0.0
+        env:
+          SOLR_MODE: solrcloud
+          SOLR_HEAP: 512m
+        ports: ['8983:8983']
+        options: --health-cmd "curl -fs http://localhost:8983/solr/admin/info/health" --health-interval 10s --health-timeout 5s --health-retries 30
+      solr9:
+        image: solr:9.11.0
+        env:
+          SOLR_MODE: solrcloud
+          SOLR_HEAP: 512m
+        ports: ['8984:8983']
+        options: --health-cmd "curl -fs http://localhost:8983/solr/admin/info/health" --health-interval 10s --health-timeout 5s --health-retries 30
 
     env:
       ORION_PGSQL_DSN: pgsql:host=127.0.0.1;port=5432;dbname=orion;user=orion;password=orion
@@ -45,6 +59,8 @@ jobs:
       ORION_MYSQL_USER: root
       ORION_MYSQL_PASSWORD: orion
       ORION_ELASTICSEARCH_URL: http://127.0.0.1:9200
+      ORION_SOLR_URL: http://127.0.0.1:8983/solr
+      ORION_SOLR9_URL: http://127.0.0.1:8984/solr
 
     steps:
       - uses: actions/checkout@v4
@@ -53,7 +69,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: sodium, mbstring, pdo_sqlite, sqlite3, pdo_pgsql, pdo_mysql
+          extensions: sodium, mbstring, pdo_sqlite, sqlite3, pdo_pgsql, pdo_mysql, curl
           coverage: none
 
       - name: Validate composer.json (root and packages)

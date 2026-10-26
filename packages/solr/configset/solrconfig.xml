@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Orion's configset (orion-search/solr). Every collection Orion builds uses it; Orion adds the fields through the Schema
+  API. Writes run tolerant (an error fails its document only), parse date strings into date fields, and are versioned
+  by the outbox offset: an update or delete whose version is not above the stored one is refused, and a delete leaves
+  a tombstone (orion_tombstone) that searches exclude, so a stale replay can neither resurrect nor remove a document.
+  The configset is uploaded under a name carrying a hash of these files: changing them uploads a new one.
+-->
+<config>
+  <luceneMatchVersion>9.0</luceneMatchVersion>
+  <dataDir>${solr.data.dir:}</dataDir>
+  <schemaFactory class="ManagedIndexSchemaFactory">
+    <bool name="mutable">true</bool>
+    <str name="managedSchemaResourceName">managed-schema.xml</str>
+  </schemaFactory>
+  <updateHandler class="solr.DirectUpdateHandler2">
+    <updateLog><str name="dir">${solr.ulog.dir:}</str></updateLog>
+    <autoCommit><maxTime>${solr.autoCommit.maxTime:15000}</maxTime><openSearcher>false</openSearcher></autoCommit>
+    <autoSoftCommit><maxTime>${solr.autoSoftCommit.maxTime:1000}</maxTime></autoSoftCommit>
+  </updateHandler>
+  <query>
+    <maxBooleanClauses>${solr.max.booleanClauses:1024}</maxBooleanClauses>
+  </query>
+  <requestDispatcher>
+    <requestParsers multipartUploadLimitInKB="-1" formdataUploadLimitInKB="-1"/>
+  </requestDispatcher>
+  <requestHandler name="/select" class="solr.SearchHandler">
+    <lst name="defaults">
+      <str name="wt">json</str>
+      <str name="echoParams">none</str>
+    </lst>
+  </requestHandler>
+  <updateRequestProcessorChain name="orion" default="true">
+    <processor class="solr.TolerantUpdateProcessorFactory">
+      <int name="maxErrors">-1</int>
+    </processor>
+    <processor class="solr.ParseDateFieldUpdateProcessorFactory">
+      <str name="typeClass">solr.DatePointField</str>
+      <str name="defaultTimeZone">UTC</str>
+      <arr name="format">
+        <str>yyyy-MM-dd['T'[HH:mm[:ss[.SSS]][z</str>
+        <str>yyyy-MM-dd['T'[HH:mm[:ss[,SSS]][z</str>
+        <str>yyyy-MM-dd HH:mm[:ss[.SSS]][z</str>
+      </arr>
+    </processor>
+    <processor class="solr.LogUpdateProcessorFactory"/>
+    <processor class="solr.DocBasedVersionConstraintsProcessorFactory">
+      <str name="versionField">orion_version</str>
+      <bool name="ignoreOldUpdates">false</bool>
+      <str name="deleteVersionParam">orion_delete_version</str>
+      <lst name="tombstoneConfig">
+        <bool name="orion_tombstone">true</bool>
+      </lst>
+    </processor>
+    <processor class="solr.DistributedUpdateProcessorFactory"/>
+    <processor class="solr.RunUpdateProcessorFactory"/>
+  </updateRequestProcessorChain>
+</config>

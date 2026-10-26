@@ -1,0 +1,48 @@
+{
+    "name": "orion-search/solr",
+    "description": "Orion's engine adapter for Apache Solr (SolrCloud 9.x and 10.x) on solarium/solarium",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "2am.tech",
+            "homepage": "https://2am.tech"
+        }
+    ],
+    "keywords": [
+        "orion",
+        "solr",
+        "solrcloud",
+        "search",
+        "reindex"
+    ],
+    "require": {
+        "php": ">=8.3",
+        "ext-curl": "*",
+        "orion-search/core": "^0.1",
+        "solarium/solarium": "^6.4 || ^7.0"
+    },
+    "require-dev": {
+        "orion-search/testing": "^0.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Orion\\Solr\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Orion\\Solr\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "0.1.x-dev"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

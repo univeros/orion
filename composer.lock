@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "41b3409320a72493d8cf2e59ab3d0c59",
+    "content-hash": "2cca0a5d16978e7fdd7a560b61aeb0b0",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -928,6 +928,68 @@
             "time": "2026-08-24T09:06:52+00:00"
         },
         {
+            "name": "halaxa/json-machine",
+            "version": "1.2.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/halaxa/json-machine.git",
+                "reference": "8bf0b0ff6ff60ab480778eaa5ad7d505b442c2d4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/halaxa/json-machine/zipball/8bf0b0ff6ff60ab480778eaa5ad7d505b442c2d4",
+                "reference": "8bf0b0ff6ff60ab480778eaa5ad7d505b442c2d4",
+                "shasum": ""
+            },
+            "require": {
+                "php": "7.2 - 8.5"
+            },
+            "require-dev": {
+                "ext-json": "*",
+                "friendsofphp/php-cs-fixer": "^3.0",
+                "phpstan/phpstan": "^1.10",
+                "phpunit/phpunit": "^8.0"
+            },
+            "suggest": {
+                "ext-json": "To run JSON Machine out of the box without custom decoders.",
+                "guzzlehttp/guzzle": "To run example with GuzzleHttp"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/functions.php"
+                ],
+                "psr-4": {
+                    "JsonMachine\\": "src/"
+                },
+                "exclude-from-classmap": [
+                    "src/autoloader.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Filip Halaxa",
+                    "email": "filip@halaxa.cz"
+                }
+            ],
+            "description": "Efficient, easy-to-use and fast JSON pull parser",
+            "support": {
+                "issues": "https://github.com/halaxa/json-machine/issues",
+                "source": "https://github.com/halaxa/json-machine/tree/1.2.6"
+            },
+            "funding": [
+                {
+                    "url": "https://ko-fi.com/G2G57KTE4",
+                    "type": "other"
+                }
+            ],
+            "time": "2025-12-05T14:53:09+00:00"
+        },
+        {
             "name": "lcobucci/jwt",
             "version": "5.6.1",
             "source": {
@@ -1492,7 +1554,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/cli",
-                "reference": "157f46d83bb963798b62ccfbd8bfc64d07e7f825"
+                "reference": "97803af6219755e811d49e83d3d2834b7f284a40"
             },
             "require": {
                 "orion-search/core": "^0.1",
@@ -1549,7 +1611,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/core",
-                "reference": "5e5f34d36ed6547fed156b728d62f4201fe64c5b"
+                "reference": "95a8654ac17de3c9d083fd3907c15236c1ce3142"
             },
             "require": {
                 "ext-sodium": "*",
@@ -1611,7 +1673,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/elasticsearch",
-                "reference": "b0549a77293b0c287d41e6a95390bd8baa78309d"
+                "reference": "2d4bb6bbf7d95e10700c78545dd706bbca1a277d"
             },
             "require": {
                 "elasticsearch/elasticsearch": "^8.19 || ^9.0",
@@ -1666,7 +1728,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/pdo",
-                "reference": "914bfaa30a05bbc4acb72dc258dcbefb76b02153"
+                "reference": "24b12a0e2b0ccc964aaf1cb0ffec592a1a946819"
             },
             "require": {
                 "ext-pdo": "*",
@@ -1721,7 +1783,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/polaris",
-                "reference": "789d1de3723243f82930bb32734d402368f3d096"
+                "reference": "a928929acf2fc0f063d5ef9edefd4b71f2cc46e5"
             },
             "require": {
                 "orion-search/core": "^0.1",
@@ -1767,12 +1829,67 @@
             }
         },
         {
+            "name": "orion-search/solr",
+            "version": "0.1.x-dev",
+            "dist": {
+                "type": "path",
+                "url": "packages/solr",
+                "reference": "4eef53edbc1c9b77d04581ecb6d0883bedfc47ac"
+            },
+            "require": {
+                "ext-curl": "*",
+                "orion-search/core": "^0.1",
+                "php": ">=8.3",
+                "solarium/solarium": "^6.4 || ^7.0"
+            },
+            "require-dev": {
+                "orion-search/testing": "^0.1"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Orion\\Solr\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Orion\\Solr\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "2am.tech",
+                    "homepage": "https://2am.tech"
+                }
+            ],
+            "description": "Orion's engine adapter for Apache Solr (SolrCloud 9.x and 10.x) on solarium/solarium",
+            "keywords": [
+                "orion",
+                "reindex",
+                "search",
+                "solr",
+                "solrcloud"
+            ],
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "orion-search/testing",
             "version": "0.1.x-dev",
             "dist": {
                 "type": "path",
                 "url": "packages/testing",
-                "reference": "f882af677a9403ab6eca9ae7ee2afc8c031d0612"
+                "reference": "c1ca0bb35f78db301aa8ade84b579a5ca17a2f3d"
             },
             "require": {
                 "orion-search/core": "^0.1",
@@ -4284,6 +4401,82 @@
             "time": "2026-10-04T05:50:08+00:00"
         },
         {
+            "name": "solarium/solarium",
+            "version": "7.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/solariumphp/solarium.git",
+                "reference": "44739c15341c308ea5ba79942fa4c9f4198679c4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/solariumphp/solarium/zipball/44739c15341c308ea5ba79942fa4c9f4198679c4",
+                "reference": "44739c15341c308ea5ba79942fa4c9f4198679c4",
+                "shasum": ""
+            },
+            "require": {
+                "composer-runtime-api": ">=2.0",
+                "ext-date": "*",
+                "ext-json": "*",
+                "ext-pcre": "*",
+                "halaxa/json-machine": "^1.1",
+                "php": "^8.1",
+                "psr/event-dispatcher": "^1.0",
+                "psr/http-client": "^1.0",
+                "psr/http-factory": "^1.0",
+                "symfony/event-dispatcher-contracts": "^2.0 || ^3.0"
+            },
+            "require-dev": {
+                "2tvenom/cborencode": "^1.0",
+                "escapestudios/symfony2-coding-standard": "^3.11",
+                "ext-curl": "*",
+                "ext-iconv": "*",
+                "nyholm/psr7": "^1.8",
+                "php-http/guzzle7-adapter": "^1.0",
+                "phpstan/extension-installer": "^1.4",
+                "phpstan/phpstan": "^2.1.41",
+                "phpstan/phpstan-deprecation-rules": "^2.0",
+                "phpstan/phpstan-phpunit": "^2.0",
+                "phpunit/phpunit": "^10.5",
+                "rawr/phpunit-data-provider": "^3.3",
+                "roave/security-advisories": "dev-master",
+                "spomky-labs/cbor-php": "^3.1",
+                "symfony/event-dispatcher": "^5.0 || ^6.0 || ^7.0 || ^8.0"
+            },
+            "suggest": {
+                "ext-curl": "Needed to use the cURL adapter",
+                "spomky-labs/cbor-php": "Needed to use CBOR formatted requests with Solr 9.3+"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Solarium\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "See GitHub contributors",
+                    "homepage": "https://github.com/solariumphp/solarium/contributors"
+                }
+            ],
+            "description": "PHP Solr client",
+            "homepage": "http://www.solarium-project.org",
+            "keywords": [
+                "php",
+                "search",
+                "solr"
+            ],
+            "support": {
+                "issues": "https://github.com/solariumphp/solarium/issues",
+                "source": "https://github.com/solariumphp/solarium/tree/7.0.0"
+            },
+            "time": "2026-04-27T07:40:48+00:00"
+        },
+        {
             "name": "spiral/attributes",
             "version": "v3.1.8",
             "source": {
@@ -5291,6 +5484,86 @@
             "homepage": "https://symfony.com",
             "support": {
                 "source": "https://github.com/symfony/deprecation-contracts/tree/v3.7.1"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-06-05T06:23:12+00:00"
+        },
+        {
+            "name": "symfony/event-dispatcher-contracts",
+            "version": "v3.7.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/event-dispatcher-contracts.git",
+                "reference": "c7de7a00ffb67842132da02ea92988a39ccd9f4e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/event-dispatcher-contracts/zipball/c7de7a00ffb67842132da02ea92988a39ccd9f4e",
+                "reference": "c7de7a00ffb67842132da02ea92988a39ccd9f4e",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1",
+                "psr/event-dispatcher": "^1"
+            },
+            "type": "library",
+            "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/contracts",
+                    "name": "symfony/contracts"
+                },
+                "branch-alias": {
+                    "dev-main": "3.7-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Contracts\\EventDispatcher\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Generic abstractions related to dispatching event",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "abstractions",
+                "contracts",
+                "decoupling",
+                "interfaces",
+                "interoperability",
+                "standards"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/event-dispatcher-contracts/tree/v3.7.1"
             },
             "funding": [
                 {
@@ -6616,7 +6889,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/univeros",
-                "reference": "8887e0026a2de544eb5b0f4ac8f58720b424ec27"
+                "reference": "769b42b064618e946055654cf890e547cc68fc81"
             },
             "require": {
                 "cycle/database": "^2.10",
@@ -6632,6 +6905,7 @@
             },
             "require-dev": {
                 "orion-search/elasticsearch": "^0.1",
+                "orion-search/polaris": "^0.1",
                 "orion-search/testing": "^0.1",
                 "univeros/doctor": "^2.6",
                 "univeros/messaging": "^2.6",
@@ -6639,6 +6913,7 @@
             },
             "suggest": {
                 "orion-search/elasticsearch": "ORION_ENGINE=elasticsearch with ORION_ELASTICSEARCH_URL",
+                "orion-search/polaris": "With univeros/polaris, each request's tenant is its token's active organization",
                 "univeros/doctor": "The seven Orion checks join bin/altair doctor, with --fix where it is safe",
                 "univeros/messaging": "The drain runs on the bus worker after each commit instead of in the request",
                 "univeros/observability": "Orion's counters and the outbox lag gauge go to the framework Meter"
@@ -7921,6 +8196,7 @@
         "orion-search/elasticsearch": 20,
         "orion-search/pdo": 20,
         "orion-search/polaris": 20,
+        "orion-search/solr": 20,
         "orion-search/testing": 20,
         "univeros/orion": 20
     },

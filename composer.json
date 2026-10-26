@@ -27,7 +27,8 @@
                     "orion-search/elasticsearch": "0.1.x-dev",
                     "orion-search/cli": "0.1.x-dev",
                     "univeros/orion": "0.1.x-dev",
-                    "orion-search/polaris": "0.1.x-dev"
+                    "orion-search/polaris": "0.1.x-dev",
+                    "orion-search/solr": "0.1.x-dev"
                 }
             }
         }
@@ -39,6 +40,7 @@
         "orion-search/elasticsearch": "0.1.x-dev",
         "orion-search/pdo": "0.1.x-dev",
         "orion-search/polaris": "0.1.x-dev",
+        "orion-search/solr": "0.1.x-dev",
         "orion-search/testing": "0.1.x-dev",
         "univeros/orion": "0.1.x-dev"
     },
@@ -58,7 +60,8 @@
             "Orion\\Elasticsearch\\Tests\\": "packages/elasticsearch/tests/",
             "Orion\\Cli\\Tests\\": "packages/cli/tests/",
             "Univeros\\Orion\\Tests\\": "packages/univeros/tests/",
-            "Orion\\Polaris\\Tests\\": "packages/polaris/tests/"
+            "Orion\\Polaris\\Tests\\": "packages/polaris/tests/",
+            "Orion\\Solr\\Tests\\": "packages/solr/tests/"
         }
     },
     "scripts": {
