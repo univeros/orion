@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Orion\Tests\Lifecycle;
+namespace Orion\Testing;
 
 use Orion\Adapter\Capability;
 use Orion\Adapter\InMemory\InMemoryEngine;
@@ -23,9 +23,10 @@ use Orion\Write\Tombstone;
 use RuntimeException;
 
 /**
- * The in-memory engine claiming native aliases, recording what it is asked to alias, and failing on demand.
+ * The in-memory engine with native aliases: it resolves an alias to the physical index it was last pointed at, records
+ * what it was asked to alias, and fails on demand. For exercising the native-alias path without a server.
  */
-final class AliasFakeEngine implements SearchAdapter, SchemaAdapter, WriteAdapter
+final class AliasingEngine implements SearchAdapter, SchemaAdapter, WriteAdapter
 {
     /** @var array<string, string> alias => physical */
     public array $aliases = [];
