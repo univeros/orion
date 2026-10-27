@@ -1,0 +1,6 @@
+# Archives of a package (and the later split repositories' dist files) carry no tests, fixtures or dev-only stubs.
+/packages/*/tests export-ignore
+/packages/*/fixtures export-ignore
+/examples export-ignore
+/docs export-ignore
+/.github export-ignore

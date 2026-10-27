@@ -47,6 +47,11 @@ final class ManifestSection
             '',
             '`orion_engine_reachable`, `orion_registry_current` (fixable), `orion_schema_drift` (additive fixable, breaking needs a reindex), `orion_alias_resolves`, `orion_outbox_lag`, `orion_dead_letters`, `orion_receipts_verify`.',
             '',
+            '## MCP tools',
+            '',
+            '- With univeros/mcp, `bin/altair mcp:serve` offers `orion__compile_query` (the native request for a neutral query, bound to the schema and scoped to the tenant, without running it), `orion__search`, `orion__list_indices`, `orion__describe_index`, `orion__capabilities` and `orion__plan`, all read-only.',
+            '- `orion__apply` and `orion__reindex` preview until called with `confirm: true`, which also needs `mcp:serve --allow-writes`.',
+            '',
         ]);
     }
 }

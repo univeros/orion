@@ -22,3 +22,6 @@ parameters:
         - packages/univeros/src
         - packages/univeros/tests
         - packages/univeros/migrations
+    excludePaths:
+        # Verbatim copies of univeros/mcp contracts (see packages/univeros/tests/Stubs/README.md), not this code.
+        - packages/univeros/tests/Stubs

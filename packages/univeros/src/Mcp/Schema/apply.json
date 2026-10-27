@@ -1,0 +1,17 @@
+{
+    "type": "object",
+    "properties": {
+        "index": {
+            "type": "string",
+            "description": "The index name (alias) as the manifest declares it."
+        },
+        "confirm": {
+            "type": "boolean",
+            "description": "true to apply; omitted or false previews."
+        }
+    },
+    "required": [
+        "index"
+    ],
+    "additionalProperties": false
+}

@@ -46,6 +46,7 @@
         "univeros/doctor": "The seven Orion checks join bin/altair doctor, with --fix where it is safe",
         "univeros/messaging": "The drain runs on the bus worker after each commit instead of in the request",
         "univeros/observability": "Orion's counters and the outbox lag gauge go to the framework Meter",
+        "univeros/mcp": "The orion__* tools (compile_query, search, list_indices, describe_index, capabilities, plan; apply and reindex gated) join bin/altair mcp:serve",
         "laminas/laminas-diactoros": "PSR-17 factories for the search: endpoints when the container binds none (the skeleton ships it)"
     },
     "autoload": {
@@ -56,7 +57,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Univeros\\Orion\\Tests\\": "tests/"
+            "Univeros\\Orion\\Tests\\": "tests/",
+            "Altair\\Mcp\\": "tests/Stubs/Altair/Mcp/"
         }
     },
     "extra": {

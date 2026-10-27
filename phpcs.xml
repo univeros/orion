@@ -21,6 +21,8 @@
     <file>packages/univeros/src</file>
     <file>packages/univeros/tests</file>
     <file>packages/univeros/migrations</file>
+    <!-- Verbatim copies of univeros/mcp contracts (packages/univeros/tests/Stubs/README.md), not this code. -->
+    <exclude-pattern>packages/univeros/tests/Stubs/*</exclude-pattern>
 
     <arg name="colors"/>
     <arg name="warning-severity" value="0"/>

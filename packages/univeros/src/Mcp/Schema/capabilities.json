@@ -1,0 +1,11 @@
+{
+    "type": "object",
+    "properties": {
+        "engine": {
+            "type": "string",
+            "description": "One engine by name; omit for every engine."
+        }
+    },
+    "required": [],
+    "additionalProperties": false
+}

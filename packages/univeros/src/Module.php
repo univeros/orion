@@ -9,6 +9,7 @@ use Altair\Container\Container;
 use Altair\Doctor\CheckRegistry;
 use Altair\Doctor\Doctor;
 use Altair\Messaging\Discovery\HandlerEntry;
+use Altair\Mcp\Tool\ToolRegistry;
 use Altair\Messaging\Discovery\HandlerRegistry;
 use Altair\Module\Contracts\ManifestContributorInterface;
 use Altair\Module\Contracts\MiddlewareProviderInterface;
@@ -37,9 +38,11 @@ use Univeros\Orion\Doctor\SchemaDriftCheck;
 use Psr\Http\Server\MiddlewareInterface;
 use Univeros\Orion\Http\RequestToken;
 use Univeros\Orion\Http\SearchEndpoints;
+use Univeros\Orion\Mcp\McpTools;
 use Univeros\Orion\Messaging\DrainIndex;
 use Univeros\Orion\Messaging\DrainIndexHandler;
 
+use function class_exists;
 use function dirname;
 use function interface_exists;
 use function is_string;
@@ -112,6 +115,17 @@ final class Module implements ModuleInterface, MigrationDirectoriesProviderInter
 
             return $registry;
         });
+        // With univeros/mcp configured, the orion__* tools join `bin/altair mcp:serve`. The serve command binds the
+        // registry after the modules apply; a decorator survives that rebinding and runs when it is resolved.
+        if (class_exists(ToolRegistry::class)) {
+            $container->extend(ToolRegistry::class, static function (object $registry): object {
+                if ($registry instanceof ToolRegistry) {
+                    McpTools::register($registry);
+                }
+
+                return $registry;
+            });
+        }
     }
 
     /**

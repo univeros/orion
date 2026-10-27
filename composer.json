@@ -64,7 +64,8 @@
             "Univeros\\Orion\\Tests\\": "packages/univeros/tests/",
             "Orion\\Polaris\\Tests\\": "packages/polaris/tests/",
             "Orion\\Solr\\Tests\\": "packages/solr/tests/",
-            "Orion\\Psr15\\Tests\\": "packages/psr15/tests/"
+            "Orion\\Psr15\\Tests\\": "packages/psr15/tests/",
+            "Altair\\Mcp\\": "packages/univeros/tests/Stubs/Altair/Mcp/"
         }
     },
     "scripts": {
