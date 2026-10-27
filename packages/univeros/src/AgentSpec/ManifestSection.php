@@ -23,12 +23,14 @@ final class ManifestSection
         $lines = ['# Orion', '', 'Deterministic index lifecycle on the application\'s Cycle connection: plan, apply, zero-downtime reindex by outbox replay, signed receipts.', '', '## Indices', ''];
         foreach ($manifest->declarations() as $declaration) {
             $schema = $declaration->schema;
+            $endpoint = $declaration->endpoint;
             $lines[] = sprintf(
-                '- `%s` on %s%s: %s',
+                '- `%s` on %s%s: %s%s',
                 $schema->index->value,
                 $declaration->engine ?? 'the configured engine',
                 $schema->orgKey === null ? '' : sprintf(', org key `%s`', $schema->orgKey),
                 implode(', ', array_map(static fn(Field $field): string => sprintf('`%s` %s', $field->name, $field->type->value), $schema->fields)),
+                $endpoint === null ? '' : sprintf('; served at `%s %s`%s', $endpoint->method, $endpoint->path, $endpoint->permission === null ? '' : sprintf(' (permission `%s`)', $endpoint->permission)),
             );
         }
         if ($manifest->declarations() === []) {
