@@ -8,6 +8,7 @@ use InvalidArgumentException;
 use LogicException;
 use Orion\Adapter\Capability;
 use Orion\Adapter\PendingTask;
+use Orion\Adapter\QueryCompiling;
 use Orion\Adapter\RequiresReindex;
 use Orion\Adapter\SchemaAdapter;
 use Orion\Adapter\SearchAdapter;
@@ -77,7 +78,7 @@ use const PHP_URL_SCHEME;
  * `raw()` takes `callable(): array`, the request parameters (`['q' => '...', 'fq' => [...]]`); see {@see NativeScope}.
  * Hybrid fusion is left to core.
  */
-final class SolrEngine implements SearchAdapter, SchemaAdapter, WriteAdapter
+final class SolrEngine implements SearchAdapter, SchemaAdapter, WriteAdapter, QueryCompiling
 {
     public const string NAME = 'solr';
     public const float DEFAULT_TIMEOUT = 60.0;
@@ -129,12 +130,28 @@ final class SolrEngine implements SearchAdapter, SchemaAdapter, WriteAdapter
         return in_array($capability, self::CAPABILITIES, true);
     }
 
+    /**
+     * The request `search()` posts: the collection's select handler and its parameters. Range bounds need the
+     * collection's field types, which are read from the live schema, as a search reads them.
+     */
+    #[Override]
+    public function compile(IndexName $index, Query $query): array
+    {
+        return ['path' => $index->value . '/select', 'params' => $this->params($index, $query)];
+    }
+
     #[Override]
     public function search(IndexName $index, Query $query): ResultSet
     {
-        $types = $this->compiler->needsTypes($query) ? $this->types($index) : [];
+        return $this->results(Http::ok($this->http->form($index->value . '/select', $this->params($index, $query)), 'search ' . $index->value));
+    }
 
-        return $this->results(Http::ok($this->http->form($index->value . '/select', $this->compiler->compile($query, $types)), 'search ' . $index->value));
+    /**
+     * @return array<string, string|list<string>>
+     */
+    private function params(IndexName $index, Query $query): array
+    {
+        return $this->compiler->compile($query, $this->compiler->needsTypes($query) ? $this->types($index) : []);
     }
 
     #[Override]

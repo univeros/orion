@@ -26,6 +26,11 @@ abstract class SolrConformance extends EngineConformanceTestCase
         return static fn(): array => ['q' => '*:*', 'rows' => 100];
     }
 
+    protected function compiledAsNative(array $compiled): ?callable
+    {
+        return static fn(): mixed => $compiled['params'] ?? null;
+    }
+
     protected function nativeShapes(): array
     {
         return SolrServer::shapes();
