@@ -36,6 +36,7 @@ Anything the container binds wins over the environment.
 | Receipt signing | `Orion\Receipt\ReceiptSigner` | `ORION_RECEIPT_KID`, `ORION_RECEIPT_SECRET_KEY` (base64), `ORION_RECEIPT_PREVIOUS_KEYS` (`kid:base64,...`) |
 | Receipt verification | `Orion\Receipt\ReceiptVerifier` | `ORION_RECEIPT_PUBLIC_KEYS` (`kid:base64,...`), so an auditor needs no secret |
 | Manifests | | `ORION_MANIFESTS` (comma-separated directories; `api` by default) |
+| Endpoint prefix | | `ORION_ENDPOINT_PREFIX`: where the `search:` endpoints are mounted |
 | Clock, logger, events, cache | the PSR interfaces | |
 | Doctor lag threshold | | `ORION_DOCTOR_MAX_LAG` (1000 by default) |
 
@@ -78,7 +79,7 @@ transaction has committed:
 $entry = $databases->database()->transaction(function ($database) use ($product, $outbox) {
     $database->insert('products')->values($product)->run();
 
-    return $outbox->index(IndexName::of('products'), $product['id'], $projector->project($product));
+    return $outbox->index(IndexName::of('products'), $product['id'], ['title' => $product['title'], 'sku' => $product['sku']]);
 });
 $dispatcher->dispatch(IndexName::of('products'));
 ```
@@ -87,3 +88,5 @@ Open the host's transactions through Cycle (`$database->transaction()`, `begin()
 the raw PDO handle: Cycle counts the nesting, and Orion joins it as a savepoint.
 
 `examples/univeros` is a running host built this way, with a walkthrough.
+
+The module in context, with the PSR-15 endpoints it serves: the [Frameworks guide](../../docs/guides/frameworks.md#univeros).
