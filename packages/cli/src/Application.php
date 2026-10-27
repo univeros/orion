@@ -27,7 +27,7 @@ use Symfony\Component\Console\Application as Console;
  */
 final class Application extends Console
 {
-    public const string VERSION = '0.1.0';
+    public const string VERSION = '1.0.2';
 
     public function __construct(?Orion $orion = null)
     {
