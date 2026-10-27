@@ -6,7 +6,8 @@ to [Semantic Versioning](https://semver.org/). Every package shares one version 
 
 ## [Unreleased]
 
-Nothing yet.
+### Fixed
+- `bin/orion --version` printed `0.1.0` in every release; it prints the package version, `1.0.2`.
 
 ## [1.0.1] - 2026-10-27
 
