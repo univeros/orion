@@ -31,7 +31,7 @@ Anything the container binds wins over the environment.
 | Setting | Binding | Environment |
 | --- | --- | --- |
 | Storage | `Orion\Storage\Storage` | the Cycle connection `CycleOrmConfiguration` configures (`DB_*`) |
-| Engines | `Orion\Registry\EngineRegistry`, for several engines or a client you build yourself | `ORION_ENGINE=elasticsearch` with `ORION_ELASTICSEARCH_URL` (comma-separated hosts; needs `orion-search/elasticsearch`), `ORION_ENGINE=solr` with `ORION_SOLR_URL` (a SolrCloud node; needs `orion-search/solr`), or `ORION_ENGINE=memory` (development only) |
+| Engines | `Orion\Registry\EngineRegistry`, for several engines or a client you build yourself | `ORION_ENGINE=elasticsearch` with `ORION_ELASTICSEARCH_URL` (comma-separated hosts; needs `orion-search/elasticsearch`), `ORION_ENGINE=opensearch` with `ORION_OPENSEARCH_URL` (a node; needs `orion-search/opensearch`), `ORION_ENGINE=solr` with `ORION_SOLR_URL` (a SolrCloud node; needs `orion-search/solr`), or `ORION_ENGINE=memory` (development only) |
 | Tenancy | `Orion\Tenancy\Tenancy` | `ORION_TENANCY=single`; there is no default |
 | Receipt signing | `Orion\Receipt\ReceiptSigner` | `ORION_RECEIPT_KID`, `ORION_RECEIPT_SECRET_KEY` (base64), `ORION_RECEIPT_PREVIOUS_KEYS` (`kid:base64,...`) |
 | Receipt verification | `Orion\Receipt\ReceiptVerifier` | `ORION_RECEIPT_PUBLIC_KEYS` (`kid:base64,...`), so an auditor needs no secret |

@@ -14,6 +14,7 @@ use Cycle\Database\DatabaseProviderInterface;
 use InvalidArgumentException;
 use Orion\Adapter\InMemory\InMemoryEngine;
 use Orion\Elasticsearch\ElasticsearchEngine;
+use Orion\OpenSearch\OpenSearchEngine;
 use Orion\Polaris\ActiveOrganization;
 use Orion\Receipt\ReceiptSigner;
 use Orion\Receipt\ReceiptVerifier;
@@ -55,13 +56,15 @@ use function trim;
  * A binding always wins over the environment. Storage is Orion's SQL on the host's Cycle connection, so the outbox
  * commits with the entities; tenancy has no default and must be chosen, and where univeros/polaris is configured it is
  * each request's active organization; receipt keys are the host's. The engine is
- * `ORION_ENGINE` (`elasticsearch` with `ORION_ELASTICSEARCH_URL` or `solr` with `ORION_SOLR_URL`, once the host installs
- * that adapter, or `memory` for development), unless the application binds an `EngineRegistry`.
+ * `ORION_ENGINE` (`elasticsearch` with `ORION_ELASTICSEARCH_URL`, `opensearch` with `ORION_OPENSEARCH_URL` or `solr`
+ * with `ORION_SOLR_URL`, once the host installs that adapter, or `memory` for development), unless the application
+ * binds an `EngineRegistry`.
  */
 final class OrionConfig
 {
     public const string ENGINE = 'ORION_ENGINE';
     public const string ELASTICSEARCH_URL = 'ORION_ELASTICSEARCH_URL';
+    public const string OPENSEARCH_URL = 'ORION_OPENSEARCH_URL';
     public const string SOLR_URL = 'ORION_SOLR_URL';
     public const string TENANCY = 'ORION_TENANCY';
     public const string RECEIPT_KID = 'ORION_RECEIPT_KID';
@@ -140,11 +143,14 @@ final class OrionConfig
         return match ($engine) {
             'memory' => new EngineRegistry(memory: new InMemoryEngine()),
             'elasticsearch' => new EngineRegistry(elasticsearch: self::elasticsearch($env)),
+            'opensearch' => new EngineRegistry(opensearch: self::opensearch($env)),
             'solr' => new EngineRegistry(solr: self::solr($env)),
             default => throw new InvalidConfigurationException(sprintf(
-                'Choose Orion\'s engine: %s=elasticsearch (with %s), %s=solr (with %s), %s=memory for development, or bind an Orion\Registry\EngineRegistry%s.',
+                'Choose Orion\'s engine: %s=elasticsearch (with %s), %s=opensearch (with %s), %s=solr (with %s), %s=memory for development, or bind an Orion\Registry\EngineRegistry%s.',
                 self::ENGINE,
                 self::ELASTICSEARCH_URL,
+                self::ENGINE,
+                self::OPENSEARCH_URL,
                 self::ENGINE,
                 self::SOLR_URL,
                 self::ENGINE,
@@ -164,6 +170,17 @@ final class OrionConfig
         }
 
         return ElasticsearchEngine::connect(...$hosts);
+    }
+
+    private static function opensearch(Env $env): OpenSearchEngine
+    {
+        if (!class_exists(OpenSearchEngine::class)) {
+            throw new InvalidConfigurationException(sprintf('%s=opensearch needs the adapter: composer require orion-search/opensearch.', self::ENGINE));
+        }
+        $url = self::string($env, self::OPENSEARCH_URL)
+            ?? throw new InvalidConfigurationException(sprintf('%s=opensearch needs %s, the node\'s URL (http://host:9200).', self::ENGINE, self::OPENSEARCH_URL));
+
+        return OpenSearchEngine::connect($url);
     }
 
     private static function solr(Env $env): SolrEngine

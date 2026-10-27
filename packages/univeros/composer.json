@@ -14,6 +14,7 @@
         "altair",
         "search",
         "elasticsearch",
+        "opensearch",
         "reindex",
         "outbox"
     ],
@@ -32,6 +33,7 @@
     },
     "require-dev": {
         "orion-search/elasticsearch": "^0.1",
+        "orion-search/opensearch": "^0.1",
         "orion-search/polaris": "^0.1",
         "orion-search/solr": "^0.1",
         "orion-search/testing": "^0.1",
@@ -41,6 +43,7 @@
     },
     "suggest": {
         "orion-search/elasticsearch": "ORION_ENGINE=elasticsearch with ORION_ELASTICSEARCH_URL",
+        "orion-search/opensearch": "ORION_ENGINE=opensearch with ORION_OPENSEARCH_URL",
         "orion-search/solr": "ORION_ENGINE=solr with ORION_SOLR_URL",
         "orion-search/polaris": "With univeros/polaris, each request's tenant is its token's active organization",
         "univeros/doctor": "The seven Orion checks join bin/altair doctor, with --fix where it is safe",
