@@ -88,8 +88,22 @@ to [Semantic Versioning](https://semver.org/). Every package shares one version 
   while the neighbours are gathered, hybrid fusion left to core; a vector joining an index created without one is
   `RequiresReindex`. In `univeros/orion`, `ORION_ENGINE=opensearch` with `ORION_OPENSEARCH_URL`. The endpoint
   fixtures replay on both OpenSearch lines; `compose.yaml`, `.env.testing` and CI carry the two services.
+- WP11: `orion-search/meilisearch`, the engine adapter for Meilisearch 1.13 and later on `meilisearch/meilisearch-php`
+  over Guzzle (`MeilisearchEngine`, `MeilisearchEngine::connect()`, `QueryCompiler`, `Settings`, `Documents`): the
+  neutral schema as index settings plus a declaration document Orion keeps in the index, documents validated against
+  it before they are sent (an undeclared field or a wrong type fails alone), every write a task that
+  `BulkResult::await()` waits for, versions kept by Orion (a stale write or delete found by reading the stored
+  version, a delete leaving a tombstone every search excludes), aliases emulated by core, lexical clauses as filters
+  on hex-encoded shadow attributes with the portable semantics (never `q`, which stays for the escape hatch), vectors
+  as user-provided embeddings ranked by cosine similarity, facets counted within the k nearest, highlights as the
+  conformance case defines them, hybrid fusion left to core. In `univeros/orion`, `ORION_ENGINE=meilisearch` with
+  `ORION_MEILISEARCH_URL` and an optional `ORION_MEILISEARCH_KEY`. The endpoint fixtures replay on both lines;
+  `compose.yaml`, `.env.testing` and CI carry the two services.
 
 ### Changed
+- WP11: `QueryEquivalenceTestCase` lets a fused query's hit count differ from the oracle's by the slack, because an
+  approximate neighbour may coincide with a lexical match where the exact one did not; the slack is a protected
+  constant of the leaf.
 - WP10: the Elasticsearch scoped escape hatch ANDs the scope into every `knn` query at any depth of the native body
   (the `knn` query clause of 8.12 and later, in `post_filter`, `rescore`, a highlight query or another entry's filter),
   not only the top-level entries, each k-NN filter written as one `bool` filter; the body is taken as the JSON it

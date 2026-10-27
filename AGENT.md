@@ -56,7 +56,12 @@ split-published later. The Univeros module lives here too, as `packages/univeros
 - **WP10 complete** (2026-10-27): `orion-search/opensearch` for OpenSearch 2.19 and 3.x on the official client, passing
   engine conformance, tenancy isolation, determinism, fault injection, query equivalence and the endpoint fixtures on
   both; vectors through the bundled k-NN plugin, hybrid fusion left to core; `ORION_ENGINE=opensearch` in the module.
-- **WP11 is next**: the Meilisearch adapter. See `docs/spec/revision.md` §7.
+- **WP11 complete** (2026-10-27): `orion-search/meilisearch` for Meilisearch 1.13 and later, passing engine conformance,
+  tenancy isolation, determinism, fault injection, query equivalence and the endpoint fixtures on 1.56 and 1.13: the
+  schema as settings plus a declaration document, documents validated before they are sent, versions kept by Orion
+  with tombstones, writes as awaited tasks, aliases emulated by core, lexical clauses as filters on shadow attributes,
+  vectors as user-provided embeddings, hybrid fusion left to core; nothing leaked upward into the ports.
+- **Every work package is done.** Next: `1.0.0-rc.1` once CI has run (#13), then the split publishing and `1.0.0`.
 - Local services for the conformance and determinism suites: `docker compose up -d`, then export `.env.testing`.
 
 ## The rules
