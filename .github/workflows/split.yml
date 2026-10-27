@@ -4,6 +4,9 @@ name: Split packages
 # univeros/orion.<package>, the Univeros module as univeros/orion.univeros), so a consumer can
 # `composer require orion-search/<package>` without the monorepo, the way polaris-core publishes
 # polaris/*. Dormant until the owner sets, on this repository:
+#   - the variable SPLIT_ORG: the GitHub organisation holding the split repositories (univeros);
+#   - the variable SPLIT_PREFIX: prepended to the package directory name (orion.), so the target is
+#     <SPLIT_ORG>/<SPLIT_PREFIX><package>;
 #   - the secret ORION_SPLIT_TOKEN: a token with contents:write on the split repositories;
 #   - the secret PACKAGIST_AUTH (optional): "username:apiToken", so Packagist is pinged after a push
 #     (a package it does not know yet, a new split, is submitted on its first push).
@@ -22,14 +25,10 @@ on:
         required: false
         type: string
 
-env:
-  SPLIT_ORG: univeros
-  SPLIT_PREFIX: orion.
-
 jobs:
   split:
     name: ${{ matrix.package }}
-    if: ${{ secrets.ORION_SPLIT_TOKEN != '' }}
+    if: ${{ vars.SPLIT_ORG != '' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -53,9 +52,9 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_ENV"
           echo "split=$(git subtree split --prefix="packages/${{ matrix.package }}" "${TAG:-HEAD}")" >> "$GITHUB_ENV"
 
-      - name: Push to ${{ env.SPLIT_ORG }}/${{ env.SPLIT_PREFIX }}${{ matrix.package }}
+      - name: Push to ${{ vars.SPLIT_ORG }}/${{ vars.SPLIT_PREFIX }}${{ matrix.package }}
         env:
-          TARGET: https://x-access-token:${{ secrets.ORION_SPLIT_TOKEN }}@github.com/${{ env.SPLIT_ORG }}/${{ env.SPLIT_PREFIX }}${{ matrix.package }}.git
+          TARGET: https://x-access-token:${{ secrets.ORION_SPLIT_TOKEN }}@github.com/${{ vars.SPLIT_ORG }}/${{ vars.SPLIT_PREFIX }}${{ matrix.package }}.git
         run: |
           if [ -n "$tag" ]; then
             git tag -f "$tag" "$split"
@@ -69,7 +68,7 @@ jobs:
       - name: Notify Packagist
         env:
           PACKAGIST_AUTH: ${{ secrets.PACKAGIST_AUTH }}
-          REPOSITORY: https://github.com/${{ env.SPLIT_ORG }}/${{ env.SPLIT_PREFIX }}${{ matrix.package }}
+          REPOSITORY: https://github.com/${{ vars.SPLIT_ORG }}/${{ vars.SPLIT_PREFIX }}${{ matrix.package }}
         run: |
           if [ -z "$PACKAGIST_AUTH" ]; then
             echo "::warning::PACKAGIST_AUTH is not set; Packagist is not notified for $REPOSITORY"
