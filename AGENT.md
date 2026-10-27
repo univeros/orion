@@ -53,7 +53,10 @@ split-published later. The Univeros module lives here too, as `packages/univeros
   `describe_index`, `capabilities`, `plan`; `apply` and `reindex` previewing until `confirm`), `Searcher::compile()`
   over the engines' `QueryCompiling` port (the request `search()` would send, bound and scoped, never sent), and the
   module's `orion__*` adapters on the framework's MCP server (`mcp:serve`, `--allow-writes` for a confirmed mutation).
-- **WP10 is next**: the OpenSearch adapter. See `docs/spec/revision.md` §7.
+- **WP10 complete** (2026-10-27): `orion-search/opensearch` for OpenSearch 2.19 and 3.x on the official client, passing
+  engine conformance, tenancy isolation, determinism, fault injection, query equivalence and the endpoint fixtures on
+  both; vectors through the bundled k-NN plugin, hybrid fusion left to core; `ORION_ENGINE=opensearch` in the module.
+- **WP11 is next**: the Meilisearch adapter. See `docs/spec/revision.md` §7.
 - Local services for the conformance and determinism suites: `docker compose up -d`, then export `.env.testing`.
 
 ## The rules

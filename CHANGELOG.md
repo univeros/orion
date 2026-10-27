@@ -81,8 +81,19 @@ to [Semantic Versioning](https://semver.org/). Every package shares one version 
 - WP7: `orion-search/solr`, the SolrCloud 9.x and 10.x adapter (`SolrEngine`, `QueryCompiler`, `NativeScope`, `Schema`,
   `Configset` with Orion's configset); `ORION_ENGINE=solr` with `ORION_SOLR_URL` in `univeros/orion`; Solr 10 and 9.11
   in `compose.yaml` and CI.
+- WP10: `orion-search/opensearch`, the engine adapter for OpenSearch 2.19 and 3.x on `opensearch-project/opensearch-php`
+  (`OpenSearchEngine`, `OpenSearchEngine::connect()` over Guzzle, `QueryCompiler`, `Mapping`, `BulkResponse`): strict
+  mappings, externally versioned writes and deletes, the neutral query compiled to the Query DSL, vectors as
+  `knn_vector` fields on the Lucene engine queried through the k-NN plugin's `knn` query with the filters applied
+  while the neighbours are gathered, hybrid fusion left to core; a vector joining an index created without one is
+  `RequiresReindex`. In `univeros/orion`, `ORION_ENGINE=opensearch` with `ORION_OPENSEARCH_URL`. The endpoint
+  fixtures replay on both OpenSearch lines; `compose.yaml`, `.env.testing` and CI carry the two services.
 
 ### Changed
+- WP10: the Elasticsearch scoped escape hatch ANDs the scope into every `knn` query at any depth of the native body
+  (the `knn` query clause of 8.12 and later, in `post_filter`, `rescore`, a highlight query or another entry's filter),
+  not only the top-level entries, each k-NN filter written as one `bool` filter; the body is taken as the JSON it
+  would be sent as. Unscoped, whether a tenant's document came back told where the foreign vectors lay.
 - WP9: `Orion\Psr15\Envelope` composes the response over `ResultSet::toArray()` (same bytes). The searcher's
   `search()` and `compile()` share the binding, window, scope and leg logic, so what `compile_query` shows is what
   `search()` sends. The engine conformance case requires every engine to be a `QueryCompiling`. The root's
