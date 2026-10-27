@@ -8,6 +8,27 @@ to [Semantic Versioning](https://semver.org/). Every package shares one version 
 
 Nothing yet.
 
+## [1.0.1] - 2026-10-27
+
+Documentation only: no code or test changed.
+
+### Added
+- `docs/guides/`: task-first user guides with working examples, checked against the code at this version: getting
+  started, index schemas, indexing, searching, index lifecycle, engines (with the capability matrix as the adapters
+  report it), multi-tenancy, the CLI reference, testing and frameworks, with an overview giving the reading order.
+- `packages/cli/README.md` and `packages/solr/README.md`.
+
+### Changed
+- `docs/README.md` is the entry point to the whole documentation: guides, packages, specification, decisions.
+- The package READMEs say how to install each package and link to the guide that covers it. The core README lists
+  what the graph provides and no longer claims health checks (they are the Univeros module's doctor checks) or a
+  default for every port (storage, engines and tenancy have none); the testing README lists every helper and suite.
+- The root README links the guides and lists `orion-search/psr15` in its Packages table, and its example passes the
+  projected document's id and fields to `Outbox::index()`, which takes an array, not a `Document`; the Univeros
+  module README's outbox example is corrected the same way and its configuration table gains
+  `ORION_ENDPOINT_PREFIX`.
+- `AGENT.md`: work lands on `main` through pull requests.
+
 ## [1.0.0] - 2026-10-27
 
 The first release: every work package of the specification (`docs/spec/revision.md` §7), proven by the engine

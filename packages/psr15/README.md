@@ -3,6 +3,10 @@
 The `search:` endpoints of Orion as a PSR-15 middleware. Each `search` block in a manifest declares a route; the
 middleware serves it through the scoped searcher and answers failures as RFC 9457 problems.
 
+```sh
+composer require orion-search/psr15
+```
+
 ```php
 use Orion\Psr15\SearchMiddleware;
 
@@ -32,3 +36,5 @@ keys: any other parameter (a tracking tag, a cache buster) is a 400, so a typo n
 
 `RequestTenant` is a request-scoped tenant resolver for hosts without Polaris: a middleware that reads the tenant
 from the request (an attribute the host's authentication set) and the `TenantResolver` Orion is configured with.
+
+Declaring endpoints and calling them: the [Frameworks guide](../../docs/guides/frameworks.md#the-search-endpoints-over-psr-15).
