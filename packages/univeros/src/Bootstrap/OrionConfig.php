@@ -14,6 +14,7 @@ use Cycle\Database\DatabaseProviderInterface;
 use InvalidArgumentException;
 use Orion\Adapter\InMemory\InMemoryEngine;
 use Orion\Elasticsearch\ElasticsearchEngine;
+use Orion\Meilisearch\MeilisearchEngine;
 use Orion\OpenSearch\OpenSearchEngine;
 use Orion\Polaris\ActiveOrganization;
 use Orion\Receipt\ReceiptSigner;
@@ -56,9 +57,9 @@ use function trim;
  * A binding always wins over the environment. Storage is Orion's SQL on the host's Cycle connection, so the outbox
  * commits with the entities; tenancy has no default and must be chosen, and where univeros/polaris is configured it is
  * each request's active organization; receipt keys are the host's. The engine is
- * `ORION_ENGINE` (`elasticsearch` with `ORION_ELASTICSEARCH_URL`, `opensearch` with `ORION_OPENSEARCH_URL` or `solr`
- * with `ORION_SOLR_URL`, once the host installs that adapter, or `memory` for development), unless the application
- * binds an `EngineRegistry`.
+ * `ORION_ENGINE` (`elasticsearch` with `ORION_ELASTICSEARCH_URL`, `opensearch` with `ORION_OPENSEARCH_URL`, `solr`
+ * with `ORION_SOLR_URL` or `meilisearch` with `ORION_MEILISEARCH_URL` and an optional `ORION_MEILISEARCH_KEY`, once the
+ * host installs that adapter, or `memory` for development), unless the application binds an `EngineRegistry`.
  */
 final class OrionConfig
 {
@@ -66,6 +67,8 @@ final class OrionConfig
     public const string ELASTICSEARCH_URL = 'ORION_ELASTICSEARCH_URL';
     public const string OPENSEARCH_URL = 'ORION_OPENSEARCH_URL';
     public const string SOLR_URL = 'ORION_SOLR_URL';
+    public const string MEILISEARCH_URL = 'ORION_MEILISEARCH_URL';
+    public const string MEILISEARCH_KEY = 'ORION_MEILISEARCH_KEY';
     public const string TENANCY = 'ORION_TENANCY';
     public const string RECEIPT_KID = 'ORION_RECEIPT_KID';
     public const string RECEIPT_SECRET_KEY = 'ORION_RECEIPT_SECRET_KEY';
@@ -145,14 +148,17 @@ final class OrionConfig
             'elasticsearch' => new EngineRegistry(elasticsearch: self::elasticsearch($env)),
             'opensearch' => new EngineRegistry(opensearch: self::opensearch($env)),
             'solr' => new EngineRegistry(solr: self::solr($env)),
+            'meilisearch' => new EngineRegistry(meilisearch: self::meilisearch($env)),
             default => throw new InvalidConfigurationException(sprintf(
-                'Choose Orion\'s engine: %s=elasticsearch (with %s), %s=opensearch (with %s), %s=solr (with %s), %s=memory for development, or bind an Orion\Registry\EngineRegistry%s.',
+                'Choose Orion\'s engine: %s=elasticsearch (with %s), %s=opensearch (with %s), %s=solr (with %s), %s=meilisearch (with %s), %s=memory for development, or bind an Orion\Registry\EngineRegistry%s.',
                 self::ENGINE,
                 self::ELASTICSEARCH_URL,
                 self::ENGINE,
                 self::OPENSEARCH_URL,
                 self::ENGINE,
                 self::SOLR_URL,
+                self::ENGINE,
+                self::MEILISEARCH_URL,
                 self::ENGINE,
                 $engine === null ? '' : sprintf(' (%s is "%s")', self::ENGINE, $engine),
             )),
@@ -192,6 +198,17 @@ final class OrionConfig
             ?? throw new InvalidConfigurationException(sprintf('%s=solr needs %s, a SolrCloud node\'s URL (http://host:8983/solr).', self::ENGINE, self::SOLR_URL));
 
         return SolrEngine::connect($url);
+    }
+
+    private static function meilisearch(Env $env): MeilisearchEngine
+    {
+        if (!class_exists(MeilisearchEngine::class)) {
+            throw new InvalidConfigurationException(sprintf('%s=meilisearch needs the adapter: composer require orion-search/meilisearch.', self::ENGINE));
+        }
+        $url = self::string($env, self::MEILISEARCH_URL)
+            ?? throw new InvalidConfigurationException(sprintf('%s=meilisearch needs %s, the node\'s URL (http://host:7700), and %s where the node has keys.', self::ENGINE, self::MEILISEARCH_URL, self::MEILISEARCH_KEY));
+
+        return MeilisearchEngine::connect($url, self::string($env, self::MEILISEARCH_KEY));
     }
 
     private static function tenancy(Container $container, Env $env): Tenancy

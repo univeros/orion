@@ -19,6 +19,7 @@ use Orion\Elasticsearch\ElasticsearchEngine;
 use Orion\OpenSearch\OpenSearchEngine;
 use Orion\Solr\SolrEngine;
 use Orion\IndexName;
+use Orion\Meilisearch\MeilisearchEngine;
 use Orion\Orion;
 use Orion\Outbox\Dispatcher;
 use Orion\Outbox\Outbox;
@@ -130,6 +131,14 @@ final class ModuleTest extends TestCase
         self::assertInstanceOf(OpenSearchEngine::class, $orion->graph()->engines()->get('opensearch'));
     }
 
+    public function testMeilisearchIsNamedByOrionEngineToo(): void
+    {
+        $orion = TestHost::boot(['ORION_ENGINE' => 'meilisearch', 'ORION_MEILISEARCH_URL' => 'http://127.0.0.1:1', 'ORION_MEILISEARCH_KEY' => 'k', 'ORION_TENANCY' => 'single'])->get(Orion::class);
+        \assert($orion instanceof Orion);
+
+        self::assertInstanceOf(MeilisearchEngine::class, $orion->graph()->engines()->get('meilisearch'));
+    }
+
     public function testAnEngineTheModuleCannotBuildIsRefusedWithTheVariableNamed(): void
     {
         foreach (
@@ -138,7 +147,8 @@ final class ModuleTest extends TestCase
             'ORION_ELASTICSEARCH_URL' => ['ORION_ENGINE' => 'elasticsearch', 'ORION_TENANCY' => 'single'],
             'ORION_SOLR_URL' => ['ORION_ENGINE' => 'solr', 'ORION_TENANCY' => 'single'],
             'ORION_OPENSEARCH_URL' => ['ORION_ENGINE' => 'opensearch', 'ORION_TENANCY' => 'single'],
-            'meilisearch' => ['ORION_ENGINE' => 'meilisearch', 'ORION_TENANCY' => 'single'],
+            'ORION_MEILISEARCH_URL' => ['ORION_ENGINE' => 'meilisearch', 'ORION_TENANCY' => 'single'],
+            'typesense' => ['ORION_ENGINE' => 'typesense', 'ORION_TENANCY' => 'single'],
             ] as $named => $env
         ) {
             try {
