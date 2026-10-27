@@ -29,7 +29,8 @@
                     "univeros/orion": "0.1.x-dev",
                     "orion-search/polaris": "0.1.x-dev",
                     "orion-search/solr": "0.1.x-dev",
-                    "orion-search/psr15": "0.1.x-dev"
+                    "orion-search/psr15": "0.1.x-dev",
+                    "orion-search/opensearch": "0.1.x-dev"
                 }
             }
         }
@@ -38,6 +39,7 @@
         "orion-search/cli": "0.1.x-dev",
         "orion-search/core": "0.1.x-dev",
         "orion-search/elasticsearch": "0.1.x-dev",
+        "orion-search/opensearch": "0.1.x-dev",
         "orion-search/pdo": "0.1.x-dev",
         "orion-search/polaris": "0.1.x-dev",
         "orion-search/psr15": "0.1.x-dev",
@@ -60,6 +62,7 @@
             "Orion\\Tests\\": "packages/core/tests/",
             "Orion\\Pdo\\Tests\\": "packages/pdo/tests/",
             "Orion\\Elasticsearch\\Tests\\": "packages/elasticsearch/tests/",
+            "Orion\\OpenSearch\\Tests\\": "packages/opensearch/tests/",
             "Orion\\Cli\\Tests\\": "packages/cli/tests/",
             "Univeros\\Orion\\Tests\\": "packages/univeros/tests/",
             "Orion\\Polaris\\Tests\\": "packages/polaris/tests/",
@@ -83,6 +86,7 @@
     },
     "config": {
         "sort-packages": true,
+        "process-timeout": 1800,
         "platform": {
             "php": "8.3.0"
         },

@@ -52,6 +52,24 @@ jobs:
           SOLR_HEAP: 512m
         ports: ['8984:8983']
         options: --health-cmd "curl -fs http://localhost:8983/solr/admin/info/health" --health-interval 10s --health-timeout 5s --health-retries 30
+      opensearch:
+        image: opensearchproject/opensearch:3.9.0
+        env:
+          discovery.type: single-node
+          DISABLE_SECURITY_PLUGIN: 'true'
+          DISABLE_INSTALL_DEMO_CONFIG: 'true'
+          OPENSEARCH_JAVA_OPTS: -Xms512m -Xmx512m
+        ports: ['9210:9200']
+        options: --health-cmd "curl -fs http://localhost:9200/_cluster/health" --health-interval 10s --health-timeout 5s --health-retries 30
+      opensearch2:
+        image: opensearchproject/opensearch:2.19.7
+        env:
+          discovery.type: single-node
+          DISABLE_SECURITY_PLUGIN: 'true'
+          DISABLE_INSTALL_DEMO_CONFIG: 'true'
+          OPENSEARCH_JAVA_OPTS: -Xms512m -Xmx512m
+        ports: ['9211:9200']
+        options: --health-cmd "curl -fs http://localhost:9200/_cluster/health" --health-interval 10s --health-timeout 5s --health-retries 30
 
     env:
       ORION_PGSQL_DSN: pgsql:host=127.0.0.1;port=5432;dbname=orion;user=orion;password=orion
@@ -61,6 +79,8 @@ jobs:
       ORION_ELASTICSEARCH_URL: http://127.0.0.1:9200
       ORION_SOLR_URL: http://127.0.0.1:8983/solr
       ORION_SOLR9_URL: http://127.0.0.1:8984/solr
+      ORION_OPENSEARCH_URL: http://127.0.0.1:9210
+      ORION_OPENSEARCH2_URL: http://127.0.0.1:9211
 
     steps:
       - uses: actions/checkout@v4

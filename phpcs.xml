@@ -16,6 +16,8 @@
     <file>packages/psr15/tests</file>
     <file>packages/solr/src</file>
     <file>packages/solr/tests</file>
+    <file>packages/opensearch/src</file>
+    <file>packages/opensearch/tests</file>
     <file>packages/polaris/src</file>
     <file>packages/polaris/tests</file>
     <file>packages/univeros/src</file>

@@ -17,6 +17,8 @@ parameters:
         - packages/psr15/tests
         - packages/solr/src
         - packages/solr/tests
+        - packages/opensearch/src
+        - packages/opensearch/tests
         - packages/polaris/src
         - packages/polaris/tests
         - packages/univeros/src
