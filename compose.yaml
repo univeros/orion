@@ -33,3 +33,11 @@ services:
     image: opensearchproject/opensearch:2.19.7
     environment: { discovery.type: single-node, DISABLE_SECURITY_PLUGIN: 'true', DISABLE_INSTALL_DEMO_CONFIG: 'true', OPENSEARCH_JAVA_OPTS: -Xms512m -Xmx512m }
     ports: ['59211:9200']
+  meilisearch:
+    image: getmeili/meilisearch:v1.56.0
+    environment: { MEILI_ENV: development, MEILI_NO_ANALYTICS: 'true' }
+    ports: ['57700:7700']
+  meilisearch113:
+    image: getmeili/meilisearch:v1.13.3
+    environment: { MEILI_ENV: development, MEILI_NO_ANALYTICS: 'true' }
+    ports: ['57701:7700']

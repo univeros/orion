@@ -70,6 +70,20 @@ jobs:
           OPENSEARCH_JAVA_OPTS: -Xms512m -Xmx512m
         ports: ['9211:9200']
         options: --health-cmd "curl -fs http://localhost:9200/_cluster/health" --health-interval 10s --health-timeout 5s --health-retries 30
+      meilisearch:
+        image: getmeili/meilisearch:v1.56.0
+        env:
+          MEILI_ENV: development
+          MEILI_NO_ANALYTICS: 'true'
+        ports: ['7700:7700']
+        options: --health-cmd "curl -fs http://localhost:7700/health" --health-interval 5s --health-timeout 5s --health-retries 30
+      meilisearch113:
+        image: getmeili/meilisearch:v1.13.3
+        env:
+          MEILI_ENV: development
+          MEILI_NO_ANALYTICS: 'true'
+        ports: ['7701:7700']
+        options: --health-cmd "curl -fs http://localhost:7700/health" --health-interval 5s --health-timeout 5s --health-retries 30
 
     env:
       ORION_PGSQL_DSN: pgsql:host=127.0.0.1;port=5432;dbname=orion;user=orion;password=orion
@@ -81,6 +95,8 @@ jobs:
       ORION_SOLR9_URL: http://127.0.0.1:8984/solr
       ORION_OPENSEARCH_URL: http://127.0.0.1:9210
       ORION_OPENSEARCH2_URL: http://127.0.0.1:9211
+      ORION_MEILISEARCH_URL: http://127.0.0.1:7700
+      ORION_MEILISEARCH113_URL: http://127.0.0.1:7701
 
     steps:
       - uses: actions/checkout@v4

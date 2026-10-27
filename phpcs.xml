@@ -18,6 +18,8 @@
     <file>packages/solr/tests</file>
     <file>packages/opensearch/src</file>
     <file>packages/opensearch/tests</file>
+    <file>packages/meilisearch/src</file>
+    <file>packages/meilisearch/tests</file>
     <file>packages/polaris/src</file>
     <file>packages/polaris/tests</file>
     <file>packages/univeros/src</file>

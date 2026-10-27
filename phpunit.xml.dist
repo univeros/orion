@@ -28,6 +28,9 @@
         <testsuite name="opensearch">
             <directory>packages/opensearch/tests</directory>
         </testsuite>
+        <testsuite name="meilisearch">
+            <directory>packages/meilisearch/tests</directory>
+        </testsuite>
         <testsuite name="polaris">
             <directory>packages/polaris/tests</directory>
         </testsuite>
@@ -46,6 +49,7 @@
             <directory>packages/pdo/src</directory>
             <directory>packages/elasticsearch/src</directory>
             <directory>packages/opensearch/src</directory>
+            <directory>packages/meilisearch/src</directory>
             <directory>packages/cli/src</directory>
             <directory>packages/psr15/src</directory>
             <directory>packages/univeros/src</directory>

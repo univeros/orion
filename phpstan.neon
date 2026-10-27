@@ -19,6 +19,8 @@ parameters:
         - packages/solr/tests
         - packages/opensearch/src
         - packages/opensearch/tests
+        - packages/meilisearch/src
+        - packages/meilisearch/tests
         - packages/polaris/src
         - packages/polaris/tests
         - packages/univeros/src
