@@ -19,6 +19,9 @@
         <testsuite name="cli">
             <directory>packages/cli/tests</directory>
         </testsuite>
+        <testsuite name="psr15">
+            <directory>packages/psr15/tests</directory>
+        </testsuite>
         <testsuite name="solr">
             <directory>packages/solr/tests</directory>
         </testsuite>
@@ -40,6 +43,7 @@
             <directory>packages/pdo/src</directory>
             <directory>packages/elasticsearch/src</directory>
             <directory>packages/cli/src</directory>
+            <directory>packages/psr15/src</directory>
             <directory>packages/univeros/src</directory>
         </include>
     </source>

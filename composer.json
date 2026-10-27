@@ -28,20 +28,22 @@
                     "orion-search/cli": "0.1.x-dev",
                     "univeros/orion": "0.1.x-dev",
                     "orion-search/polaris": "0.1.x-dev",
-                    "orion-search/solr": "0.1.x-dev"
+                    "orion-search/solr": "0.1.x-dev",
+                    "orion-search/psr15": "0.1.x-dev"
                 }
             }
         }
     ],
     "require": {
-        "php": ">=8.3",
         "orion-search/cli": "0.1.x-dev",
         "orion-search/core": "0.1.x-dev",
         "orion-search/elasticsearch": "0.1.x-dev",
         "orion-search/pdo": "0.1.x-dev",
         "orion-search/polaris": "0.1.x-dev",
+        "orion-search/psr15": "0.1.x-dev",
         "orion-search/solr": "0.1.x-dev",
         "orion-search/testing": "0.1.x-dev",
+        "php": ">=8.3",
         "univeros/orion": "0.1.x-dev"
     },
     "require-dev": {
@@ -61,7 +63,8 @@
             "Orion\\Cli\\Tests\\": "packages/cli/tests/",
             "Univeros\\Orion\\Tests\\": "packages/univeros/tests/",
             "Orion\\Polaris\\Tests\\": "packages/polaris/tests/",
-            "Orion\\Solr\\Tests\\": "packages/solr/tests/"
+            "Orion\\Solr\\Tests\\": "packages/solr/tests/",
+            "Orion\\Psr15\\Tests\\": "packages/psr15/tests/"
         }
     },
     "scripts": {

@@ -1,0 +1,54 @@
+{
+    "name": "orion-search/psr15",
+    "description": "The search: endpoints of Orion as a PSR-15 middleware: the manifest's declared routes served through the scoped searcher, RFC 9457 problems, a request-scoped tenant resolver",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "2am.tech",
+            "homepage": "https://2am.tech"
+        }
+    ],
+    "keywords": [
+        "search",
+        "psr-15",
+        "psr-7",
+        "http",
+        "endpoint"
+    ],
+    "require": {
+        "php": ">=8.3",
+        "orion-search/core": "^0.1",
+        "psr/http-factory": "^1.0",
+        "psr/http-message": "^1.1 || ^2.0",
+        "psr/http-server-handler": "^1.0",
+        "psr/http-server-middleware": "^1.0",
+        "psr/log": "^3.0"
+    },
+    "require-dev": {
+        "guzzlehttp/psr7": "^2.7",
+        "orion-search/elasticsearch": "^0.1",
+        "orion-search/solr": "^0.1",
+        "orion-search/testing": "^0.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Orion\\Psr15\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Orion\\Psr15\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "0.1.x-dev"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

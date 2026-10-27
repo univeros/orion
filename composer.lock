@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2cca0a5d16978e7fdd7a560b61aeb0b0",
+    "content-hash": "2f56b51ae4b37b34a2413d3c9558dc5c",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -1554,7 +1554,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/cli",
-                "reference": "97803af6219755e811d49e83d3d2834b7f284a40"
+                "reference": "9bce64de5a3945f7701b53bb111d6093a0d0f6a4"
             },
             "require": {
                 "orion-search/core": "^0.1",
@@ -1611,7 +1611,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/core",
-                "reference": "95a8654ac17de3c9d083fd3907c15236c1ce3142"
+                "reference": "d58e7772c119fb52b3aa492d2628c5c88311a476"
             },
             "require": {
                 "ext-sodium": "*",
@@ -1673,7 +1673,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/elasticsearch",
-                "reference": "2d4bb6bbf7d95e10700c78545dd706bbca1a277d"
+                "reference": "37205248d2883fc7cecb24cabd6a3edc8ffbae88"
             },
             "require": {
                 "elasticsearch/elasticsearch": "^8.19 || ^9.0",
@@ -1728,7 +1728,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/pdo",
-                "reference": "24b12a0e2b0ccc964aaf1cb0ffec592a1a946819"
+                "reference": "849cb9680c78ae2e88a55ba0e429aef1238c2e8a"
             },
             "require": {
                 "ext-pdo": "*",
@@ -1783,7 +1783,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/polaris",
-                "reference": "a928929acf2fc0f063d5ef9edefd4b71f2cc46e5"
+                "reference": "2dff0cffb29d29fa9210920633b8eaba8c84607c"
             },
             "require": {
                 "orion-search/core": "^0.1",
@@ -1829,12 +1829,73 @@
             }
         },
         {
+            "name": "orion-search/psr15",
+            "version": "0.1.x-dev",
+            "dist": {
+                "type": "path",
+                "url": "packages/psr15",
+                "reference": "3af1f5129c49c04ff55d02be79192e20e20ebdda"
+            },
+            "require": {
+                "orion-search/core": "^0.1",
+                "php": ">=8.3",
+                "psr/http-factory": "^1.0",
+                "psr/http-message": "^1.1 || ^2.0",
+                "psr/http-server-handler": "^1.0",
+                "psr/http-server-middleware": "^1.0",
+                "psr/log": "^3.0"
+            },
+            "require-dev": {
+                "guzzlehttp/psr7": "^2.7",
+                "orion-search/elasticsearch": "^0.1",
+                "orion-search/solr": "^0.1",
+                "orion-search/testing": "^0.1"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Orion\\Psr15\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Orion\\Psr15\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "2am.tech",
+                    "homepage": "https://2am.tech"
+                }
+            ],
+            "description": "The search: endpoints of Orion as a PSR-15 middleware: the manifest's declared routes served through the scoped searcher, RFC 9457 problems, a request-scoped tenant resolver",
+            "keywords": [
+                "endpoint",
+                "http",
+                "psr-15",
+                "psr-7",
+                "search"
+            ],
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "orion-search/solr",
             "version": "0.1.x-dev",
             "dist": {
                 "type": "path",
                 "url": "packages/solr",
-                "reference": "4eef53edbc1c9b77d04581ecb6d0883bedfc47ac"
+                "reference": "725d53987fb14901ca7d4b8ac3ea96e10052d7af"
             },
             "require": {
                 "ext-curl": "*",
@@ -1889,7 +1950,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/testing",
-                "reference": "c1ca0bb35f78db301aa8ade84b579a5ca17a2f3d"
+                "reference": "e722cc48096cfb1a75cb314762577a9717f1b9de"
             },
             "require": {
                 "orion-search/core": "^0.1",
@@ -6889,7 +6950,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/univeros",
-                "reference": "769b42b064618e946055654cf890e547cc68fc81"
+                "reference": "72ad4e8379975c1a5ffecefd3d93804c0fb1f6a7"
             },
             "require": {
                 "cycle/database": "^2.10",
@@ -6897,6 +6958,7 @@
                 "orion-search/cli": "^0.1",
                 "orion-search/core": "^0.1",
                 "orion-search/pdo": "^0.1",
+                "orion-search/psr15": "^0.1",
                 "php": ">=8.3",
                 "univeros/configuration": "^2.6",
                 "univeros/container": "^2.6",
@@ -6906,14 +6968,17 @@
             "require-dev": {
                 "orion-search/elasticsearch": "^0.1",
                 "orion-search/polaris": "^0.1",
+                "orion-search/solr": "^0.1",
                 "orion-search/testing": "^0.1",
                 "univeros/doctor": "^2.6",
                 "univeros/messaging": "^2.6",
                 "univeros/observability": "^2.6"
             },
             "suggest": {
+                "laminas/laminas-diactoros": "PSR-17 factories for the search: endpoints when the container binds none (the skeleton ships it)",
                 "orion-search/elasticsearch": "ORION_ENGINE=elasticsearch with ORION_ELASTICSEARCH_URL",
                 "orion-search/polaris": "With univeros/polaris, each request's tenant is its token's active organization",
+                "orion-search/solr": "ORION_ENGINE=solr with ORION_SOLR_URL",
                 "univeros/doctor": "The seven Orion checks join bin/altair doctor, with --fix where it is safe",
                 "univeros/messaging": "The drain runs on the bus worker after each commit instead of in the request",
                 "univeros/observability": "Orion's counters and the outbox lag gauge go to the framework Meter"
@@ -8196,6 +8261,7 @@
         "orion-search/elasticsearch": 20,
         "orion-search/pdo": 20,
         "orion-search/polaris": 20,
+        "orion-search/psr15": 20,
         "orion-search/solr": 20,
         "orion-search/testing": 20,
         "univeros/orion": 20
