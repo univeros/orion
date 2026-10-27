@@ -1,5 +1,7 @@
 # Orion
 
+[![CI](https://github.com/univeros/orion/actions/workflows/ci.yml/badge.svg)](https://github.com/univeros/orion/actions/workflows/ci.yml)
+
 > **Deterministic, replayable index operations for any full-text engine, with a thin honest hybrid query layer, for any PHP application.**
 > Framework-free core, dumb engine adapters, lifecycle you can prove.
 
@@ -81,10 +83,10 @@ hash-chained receipts, `bin/orion`, the determinism, fault-injection, tenancy-is
 harnesses, tenancy on a shared index with the tenant from the Polaris token, the `search:` manifest with its index and
 endpoint declarations, the endpoints served over PSR-15 and by the Univeros module, the agent surface (`compile_query`
 and the other core tools, as `orion__*` on the framework's MCP server), and a demo host with a walkthrough
-(`examples/univeros`). Every work package of the specification is done; what remains before 1.0.0 is a green CI run and the split
-publishing. Progress is tracked as epics in the repository's issues.
-Nothing is published yet. This repository is the monorepo; each package will be split to a read-only
-repository for Composer when the first tag is cut.
+(`examples/univeros`). Every work package of the specification is done and version 1.0.0 is tagged in this
+monorepo, with CI green on every engine. Progress is tracked as epics in the repository's issues.
+The per-package read-only repositories (`univeros/orion.<package>`) and their Packagist registration are the
+next step; until then, install from a clone with path repositories, as `examples/univeros` does.
 
 ## Documentation
 

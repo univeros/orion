@@ -19,11 +19,11 @@
     "require": {
         "php": ">=8.3",
         "ext-curl": "*",
-        "orion-search/core": "^0.1",
+        "orion-search/core": "^1.0",
         "solarium/solarium": "^6.4 || ^7.0"
     },
     "require-dev": {
-        "orion-search/testing": "^0.1"
+        "orion-search/testing": "^1.0"
     },
     "autoload": {
         "psr-4": {
@@ -37,7 +37,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "0.1.x-dev"
+            "dev-main": "1.0.x-dev"
         }
     },
     "config": {

@@ -21,34 +21,34 @@
             "options": {
                 "symlink": true,
                 "versions": {
-                    "orion-search/core": "0.1.x-dev",
-                    "orion-search/testing": "0.1.x-dev",
-                    "orion-search/pdo": "0.1.x-dev",
-                    "orion-search/elasticsearch": "0.1.x-dev",
-                    "orion-search/cli": "0.1.x-dev",
-                    "univeros/orion": "0.1.x-dev",
-                    "orion-search/polaris": "0.1.x-dev",
-                    "orion-search/solr": "0.1.x-dev",
-                    "orion-search/psr15": "0.1.x-dev",
-                    "orion-search/opensearch": "0.1.x-dev",
-                    "orion-search/meilisearch": "0.1.x-dev"
+                    "orion-search/core": "1.0.x-dev",
+                    "orion-search/testing": "1.0.x-dev",
+                    "orion-search/pdo": "1.0.x-dev",
+                    "orion-search/elasticsearch": "1.0.x-dev",
+                    "orion-search/cli": "1.0.x-dev",
+                    "univeros/orion": "1.0.x-dev",
+                    "orion-search/polaris": "1.0.x-dev",
+                    "orion-search/solr": "1.0.x-dev",
+                    "orion-search/psr15": "1.0.x-dev",
+                    "orion-search/opensearch": "1.0.x-dev",
+                    "orion-search/meilisearch": "1.0.x-dev"
                 }
             }
         }
     ],
     "require": {
-        "orion-search/cli": "0.1.x-dev",
-        "orion-search/core": "0.1.x-dev",
-        "orion-search/elasticsearch": "0.1.x-dev",
-        "orion-search/meilisearch": "0.1.x-dev",
-        "orion-search/opensearch": "0.1.x-dev",
-        "orion-search/pdo": "0.1.x-dev",
-        "orion-search/polaris": "0.1.x-dev",
-        "orion-search/psr15": "0.1.x-dev",
-        "orion-search/solr": "0.1.x-dev",
-        "orion-search/testing": "0.1.x-dev",
+        "orion-search/cli": "^1.0@dev",
+        "orion-search/core": "^1.0@dev",
+        "orion-search/elasticsearch": "^1.0@dev",
+        "orion-search/meilisearch": "^1.0@dev",
+        "orion-search/opensearch": "^1.0@dev",
+        "orion-search/pdo": "^1.0@dev",
+        "orion-search/polaris": "^1.0@dev",
+        "orion-search/psr15": "^1.0@dev",
+        "orion-search/solr": "^1.0@dev",
+        "orion-search/testing": "^1.0@dev",
         "php": ">=8.3",
-        "univeros/orion": "0.1.x-dev"
+        "univeros/orion": "^1.0@dev"
     },
     "require-dev": {
         "guzzlehttp/guzzle": "^7.9",

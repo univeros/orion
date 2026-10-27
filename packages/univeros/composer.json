@@ -22,10 +22,10 @@
     "require": {
         "cycle/database": "^2.10",
         "cycle/migrations": "^4.2",
-        "orion-search/cli": "^0.1",
-        "orion-search/core": "^0.1",
-        "orion-search/pdo": "^0.1",
-        "orion-search/psr15": "^0.1",
+        "orion-search/cli": "^1.0",
+        "orion-search/core": "^1.0",
+        "orion-search/pdo": "^1.0",
+        "orion-search/psr15": "^1.0",
         "php": ">=8.3",
         "univeros/configuration": "^2.6",
         "univeros/container": "^2.6",
@@ -33,12 +33,12 @@
         "univeros/persistence": "^2.6"
     },
     "require-dev": {
-        "orion-search/elasticsearch": "^0.1",
-        "orion-search/meilisearch": "^0.1",
-        "orion-search/opensearch": "^0.1",
-        "orion-search/polaris": "^0.1",
-        "orion-search/solr": "^0.1",
-        "orion-search/testing": "^0.1",
+        "orion-search/elasticsearch": "^1.0",
+        "orion-search/meilisearch": "^1.0",
+        "orion-search/opensearch": "^1.0",
+        "orion-search/polaris": "^1.0",
+        "orion-search/solr": "^1.0",
+        "orion-search/testing": "^1.0",
         "univeros/doctor": "^2.6",
         "univeros/messaging": "^2.6",
         "univeros/observability": "^2.6"
@@ -69,7 +69,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-main": "0.1.x-dev"
+            "dev-main": "1.0.x-dev"
         }
     },
     "config": {

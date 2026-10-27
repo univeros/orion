@@ -10,13 +10,13 @@
             "options": {
                 "symlink": true,
                 "versions": {
-                    "univeros/orion": "0.1.x-dev",
-                    "orion-search/core": "0.1.x-dev",
-                    "orion-search/pdo": "0.1.x-dev",
-                    "orion-search/cli": "0.1.x-dev",
-                    "orion-search/elasticsearch": "0.1.x-dev",
-                    "orion-search/testing": "0.1.x-dev",
-                    "orion-search/psr15": "0.1.x-dev"
+                    "univeros/orion": "1.0.x-dev",
+                    "orion-search/core": "1.0.x-dev",
+                    "orion-search/pdo": "1.0.x-dev",
+                    "orion-search/cli": "1.0.x-dev",
+                    "orion-search/elasticsearch": "1.0.x-dev",
+                    "orion-search/testing": "1.0.x-dev",
+                    "orion-search/psr15": "1.0.x-dev"
                 }
             }
         }
@@ -26,9 +26,9 @@
         "ext-pdo_sqlite": "*",
         "ext-sodium": "*",
         "guzzlehttp/guzzle": "^7.9",
-        "orion-search/elasticsearch": "0.1.x-dev",
+        "orion-search/elasticsearch": "^1.0@dev",
         "univeros/framework": "^2.6",
-        "univeros/orion": "0.1.x-dev"
+        "univeros/orion": "^1.0@dev"
     },
     "autoload": {
         "psr-4": {

@@ -61,7 +61,8 @@ split-published later. The Univeros module lives here too, as `packages/univeros
   schema as settings plus a declaration document, documents validated before they are sent, versions kept by Orion
   with tombstones, writes as awaited tasks, aliases emulated by core, lexical clauses as filters on shadow attributes,
   vectors as user-provided embeddings, hybrid fusion left to core; nothing leaked upward into the ports.
-- **Every work package is done.** Next: `1.0.0-rc.1` once CI has run (#13), then the split publishing and `1.0.0`.
+- **1.0.0** (2026-10-27): every work package done, CI green on every engine since the repository went public, the
+  version line at `^1.0` / `1.x-dev`. Next: the per-package read-only repositories and Packagist.
 - Local services for the conformance and determinism suites: `docker compose up -d`, then export `.env.testing`.
 
 ## The rules

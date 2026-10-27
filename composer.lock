@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7df9b6b9098fab660baa564201eb32e4",
+    "content-hash": "13d82b1d06e0912230b491dfcc094bab",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -2159,20 +2159,20 @@
         },
         {
             "name": "orion-search/cli",
-            "version": "0.1.x-dev",
+            "version": "1.0.x-dev",
             "dist": {
                 "type": "path",
                 "url": "packages/cli",
-                "reference": "81a1730bd373e7096061f7989da68353bf4fc60a"
+                "reference": "942d6542b875097134128bba78afa51e53a226d7"
             },
             "require": {
-                "orion-search/core": "^0.1",
+                "orion-search/core": "^1.0",
                 "php": ">=8.3",
                 "symfony/console": "^7.0 || ^8.0",
                 "symfony/yaml": "^7.0 || ^8.0"
             },
             "require-dev": {
-                "orion-search/testing": "^0.1"
+                "orion-search/testing": "^1.0"
             },
             "bin": [
                 "bin/orion"
@@ -2180,7 +2180,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "0.1.x-dev"
+                    "dev-main": "1.0.x-dev"
                 }
             },
             "autoload": {
@@ -2216,11 +2216,11 @@
         },
         {
             "name": "orion-search/core",
-            "version": "0.1.x-dev",
+            "version": "1.0.x-dev",
             "dist": {
                 "type": "path",
                 "url": "packages/core",
-                "reference": "0f96f94b5952fafdc7e812ddff2580aebba25323"
+                "reference": "90e1063b1740ddb40ccc57da01cfac13d6761f4c"
             },
             "require": {
                 "ext-sodium": "*",
@@ -2233,12 +2233,12 @@
                 "symfony/yaml": "^7.0 || ^8.0"
             },
             "require-dev": {
-                "orion-search/testing": "^0.1"
+                "orion-search/testing": "^1.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "0.1.x-dev"
+                    "dev-main": "1.0.x-dev"
                 }
             },
             "autoload": {
@@ -2278,25 +2278,25 @@
         },
         {
             "name": "orion-search/elasticsearch",
-            "version": "0.1.x-dev",
+            "version": "1.0.x-dev",
             "dist": {
                 "type": "path",
                 "url": "packages/elasticsearch",
-                "reference": "74cfded72ff1a6cf83c7a39434d7c8ab3d10baf1"
+                "reference": "d3faf0f790edf9a0e09206b1539d1429e4391ecd"
             },
             "require": {
                 "elasticsearch/elasticsearch": "^8.19 || ^9.0",
-                "orion-search/core": "^0.1",
+                "orion-search/core": "^1.0",
                 "php": ">=8.3"
             },
             "require-dev": {
                 "guzzlehttp/guzzle": "^7.9",
-                "orion-search/testing": "^0.1"
+                "orion-search/testing": "^1.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "0.1.x-dev"
+                    "dev-main": "1.0.x-dev"
                 }
             },
             "autoload": {
@@ -2333,25 +2333,25 @@
         },
         {
             "name": "orion-search/meilisearch",
-            "version": "0.1.x-dev",
+            "version": "1.0.x-dev",
             "dist": {
                 "type": "path",
                 "url": "packages/meilisearch",
-                "reference": "0b079fd6e9c10d1ba46a634e2e3c4d9390bc530e"
+                "reference": "1e6e6fd91522e4b7c29d7aa165a40bc0e324b495"
             },
             "require": {
                 "guzzlehttp/guzzle": "^7.9",
                 "meilisearch/meilisearch-php": "^1.17",
-                "orion-search/core": "^0.1",
+                "orion-search/core": "^1.0",
                 "php": ">=8.3"
             },
             "require-dev": {
-                "orion-search/testing": "^0.1"
+                "orion-search/testing": "^1.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "0.1.x-dev"
+                    "dev-main": "1.0.x-dev"
                 }
             },
             "autoload": {
@@ -2388,25 +2388,25 @@
         },
         {
             "name": "orion-search/opensearch",
-            "version": "0.1.x-dev",
+            "version": "1.0.x-dev",
             "dist": {
                 "type": "path",
                 "url": "packages/opensearch",
-                "reference": "6db211e7e05595cc027b8bf06f7d4117158663f9"
+                "reference": "911fd81d345c71ca479459def66b8853930056bc"
             },
             "require": {
                 "guzzlehttp/guzzle": "^7.9",
                 "opensearch-project/opensearch-php": "^2.7",
-                "orion-search/core": "^0.1",
+                "orion-search/core": "^1.0",
                 "php": ">=8.3"
             },
             "require-dev": {
-                "orion-search/testing": "^0.1"
+                "orion-search/testing": "^1.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "0.1.x-dev"
+                    "dev-main": "1.0.x-dev"
                 }
             },
             "autoload": {
@@ -2443,24 +2443,24 @@
         },
         {
             "name": "orion-search/pdo",
-            "version": "0.1.x-dev",
+            "version": "1.0.x-dev",
             "dist": {
                 "type": "path",
                 "url": "packages/pdo",
-                "reference": "75ae5639fe746864268082b74eb820deb14001d1"
+                "reference": "c967177692b925583576aef273af3727908d4b8a"
             },
             "require": {
                 "ext-pdo": "*",
-                "orion-search/core": "^0.1",
+                "orion-search/core": "^1.0",
                 "php": ">=8.3"
             },
             "require-dev": {
-                "orion-search/testing": "^0.1"
+                "orion-search/testing": "^1.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "0.1.x-dev"
+                    "dev-main": "1.0.x-dev"
                 }
             },
             "autoload": {
@@ -2498,21 +2498,21 @@
         },
         {
             "name": "orion-search/polaris",
-            "version": "0.1.x-dev",
+            "version": "1.0.x-dev",
             "dist": {
                 "type": "path",
                 "url": "packages/polaris",
-                "reference": "7b9ebd451a593b3b545bfb67b2ade8be70898ea9"
+                "reference": "7daa6b68c1c7c3184b139482a5b46fcd34d7a465"
             },
             "require": {
-                "orion-search/core": "^0.1",
+                "orion-search/core": "^1.0",
                 "php": ">=8.3",
                 "polaris/core": "^0.11"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "0.1.x-dev"
+                    "dev-main": "1.0.x-dev"
                 }
             },
             "autoload": {
@@ -2549,14 +2549,14 @@
         },
         {
             "name": "orion-search/psr15",
-            "version": "0.1.x-dev",
+            "version": "1.0.x-dev",
             "dist": {
                 "type": "path",
                 "url": "packages/psr15",
-                "reference": "9ad72ca332669e2ae8c1ccfca9fadf20b7934498"
+                "reference": "359a56531c3cc78ffb8ad2b63691b8ab29eb6d7a"
             },
             "require": {
-                "orion-search/core": "^0.1",
+                "orion-search/core": "^1.0",
                 "php": ">=8.3",
                 "psr/http-factory": "^1.0",
                 "psr/http-message": "^1.1 || ^2.0",
@@ -2566,14 +2566,14 @@
             },
             "require-dev": {
                 "guzzlehttp/psr7": "^2.7",
-                "orion-search/elasticsearch": "^0.1",
-                "orion-search/solr": "^0.1",
-                "orion-search/testing": "^0.1"
+                "orion-search/elasticsearch": "^1.0",
+                "orion-search/solr": "^1.0",
+                "orion-search/testing": "^1.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "0.1.x-dev"
+                    "dev-main": "1.0.x-dev"
                 }
             },
             "autoload": {
@@ -2610,25 +2610,25 @@
         },
         {
             "name": "orion-search/solr",
-            "version": "0.1.x-dev",
+            "version": "1.0.x-dev",
             "dist": {
                 "type": "path",
                 "url": "packages/solr",
-                "reference": "bab5fa302b8576befcd7ed324bbe68b9f47dee73"
+                "reference": "7de489de2565ddcb44cfd36cfe0d7e6f8d63204e"
             },
             "require": {
                 "ext-curl": "*",
-                "orion-search/core": "^0.1",
+                "orion-search/core": "^1.0",
                 "php": ">=8.3",
                 "solarium/solarium": "^6.4 || ^7.0"
             },
             "require-dev": {
-                "orion-search/testing": "^0.1"
+                "orion-search/testing": "^1.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "0.1.x-dev"
+                    "dev-main": "1.0.x-dev"
                 }
             },
             "autoload": {
@@ -2665,21 +2665,21 @@
         },
         {
             "name": "orion-search/testing",
-            "version": "0.1.x-dev",
+            "version": "1.0.x-dev",
             "dist": {
                 "type": "path",
                 "url": "packages/testing",
-                "reference": "9db716041a127f894449a86c70bdae67c62eab2d"
+                "reference": "87a4a152b537314ebcf2923d956fe13005f76498"
             },
             "require": {
-                "orion-search/core": "^0.1",
+                "orion-search/core": "^1.0",
                 "php": ">=8.3",
                 "phpunit/phpunit": "^12.5"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "0.1.x-dev"
+                    "dev-main": "1.0.x-dev"
                 }
             },
             "autoload": {
@@ -7862,19 +7862,19 @@
         },
         {
             "name": "univeros/orion",
-            "version": "0.1.x-dev",
+            "version": "1.0.x-dev",
             "dist": {
                 "type": "path",
                 "url": "packages/univeros",
-                "reference": "6a03f9781eeb0c2ee895ef07c2a3ca2a32723e33"
+                "reference": "6f4a8232f22c42964da911be8f5b18605413feca"
             },
             "require": {
                 "cycle/database": "^2.10",
                 "cycle/migrations": "^4.2",
-                "orion-search/cli": "^0.1",
-                "orion-search/core": "^0.1",
-                "orion-search/pdo": "^0.1",
-                "orion-search/psr15": "^0.1",
+                "orion-search/cli": "^1.0",
+                "orion-search/core": "^1.0",
+                "orion-search/pdo": "^1.0",
+                "orion-search/psr15": "^1.0",
                 "php": ">=8.3",
                 "univeros/configuration": "^2.6",
                 "univeros/container": "^2.6",
@@ -7882,11 +7882,12 @@
                 "univeros/persistence": "^2.6"
             },
             "require-dev": {
-                "orion-search/elasticsearch": "^0.1",
-                "orion-search/opensearch": "^0.1",
-                "orion-search/polaris": "^0.1",
-                "orion-search/solr": "^0.1",
-                "orion-search/testing": "^0.1",
+                "orion-search/elasticsearch": "^1.0",
+                "orion-search/meilisearch": "^1.0",
+                "orion-search/opensearch": "^1.0",
+                "orion-search/polaris": "^1.0",
+                "orion-search/solr": "^1.0",
+                "orion-search/testing": "^1.0",
                 "univeros/doctor": "^2.6",
                 "univeros/messaging": "^2.6",
                 "univeros/observability": "^2.6"
@@ -7894,6 +7895,7 @@
             "suggest": {
                 "laminas/laminas-diactoros": "PSR-17 factories for the search: endpoints when the container binds none (the skeleton ships it)",
                 "orion-search/elasticsearch": "ORION_ENGINE=elasticsearch with ORION_ELASTICSEARCH_URL",
+                "orion-search/meilisearch": "ORION_ENGINE=meilisearch with ORION_MEILISEARCH_URL and ORION_MEILISEARCH_KEY",
                 "orion-search/opensearch": "ORION_ENGINE=opensearch with ORION_OPENSEARCH_URL",
                 "orion-search/polaris": "With univeros/polaris, each request's tenant is its token's active organization",
                 "orion-search/solr": "ORION_ENGINE=solr with ORION_SOLR_URL",
@@ -7905,7 +7907,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "0.1.x-dev"
+                    "dev-main": "1.0.x-dev"
                 }
             },
             "autoload": {
@@ -7933,6 +7935,7 @@
             "keywords": [
                 "altair",
                 "elasticsearch",
+                "meilisearch",
                 "opensearch",
                 "outbox",
                 "reindex",

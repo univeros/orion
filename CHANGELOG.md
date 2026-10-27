@@ -6,6 +6,15 @@ to [Semantic Versioning](https://semver.org/). Every package shares one version 
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [1.0.0] - 2026-10-27
+
+The first release: every work package of the specification (`docs/spec/revision.md` §7), proven by the engine
+conformance, tenancy isolation, determinism, fault-injection and query-equivalence suites on Elasticsearch 9.5 and
+8.19, SolrCloud 10 and 9.11, OpenSearch 3.9 and 2.19, and Meilisearch 1.56 and 1.13, and by the Univeros demo
+walkthrough, in CI.
+
 ### Added
 - WP0: the monorepo, root QA (`composer qa`), `bin/check-imports` with tests, the `orion-search/core` and
   `orion-search/testing` skeletons, the specification and the decisions log, CI.

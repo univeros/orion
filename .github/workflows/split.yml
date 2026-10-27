@@ -1,0 +1,90 @@
+name: Split packages
+
+# Mirrors every package under packages/ to its own read-only repository (docs/spec/revision.md §1:
+# univeros/orion.<package>, the Univeros module as univeros/orion.univeros), so a consumer can
+# `composer require orion-search/<package>` without the monorepo, the way polaris-core publishes
+# polaris/*. Dormant until the owner sets, on this repository:
+#   - the secret ORION_SPLIT_TOKEN: a token with contents:write on the split repositories;
+#   - the secret PACKAGIST_AUTH (optional): "username:apiToken", so Packagist is pinged after a push
+#     (a package it does not know yet, a new split, is submitted on its first push).
+# Every push to main force-updates each split's main; a v* tag is pushed to every split at the split
+# commit, so the packages share one version line. workflow_dispatch with `tag` pushes an existing tag
+# (the first split of a tag made before the secrets existed); without it, the chosen branch.
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'An existing v* tag to push to every split instead of the branch'
+        required: false
+        type: string
+
+env:
+  SPLIT_ORG: univeros
+  SPLIT_PREFIX: orion.
+
+jobs:
+  split:
+    name: ${{ matrix.package }}
+    if: ${{ secrets.ORION_SPLIT_TOKEN != '' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [core, testing, pdo, psr15, cli, polaris, elasticsearch, solr, opensearch, meilisearch, univeros]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # The runner's GITHUB_TOKEN must not land in git's extraheader: it only writes to this
+          # repository and would shadow the split token on the push (a 403 on the split repository).
+          persist-credentials: false
+
+      - name: Split packages/${{ matrix.package }}
+        env:
+          TAG: ${{ inputs.tag || (github.ref_type == 'tag' && github.ref_name) || '' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          echo "tag=$TAG" >> "$GITHUB_ENV"
+          echo "split=$(git subtree split --prefix="packages/${{ matrix.package }}" "${TAG:-HEAD}")" >> "$GITHUB_ENV"
+
+      - name: Push to ${{ env.SPLIT_ORG }}/${{ env.SPLIT_PREFIX }}${{ matrix.package }}
+        env:
+          TARGET: https://x-access-token:${{ secrets.ORION_SPLIT_TOKEN }}@github.com/${{ env.SPLIT_ORG }}/${{ env.SPLIT_PREFIX }}${{ matrix.package }}.git
+        run: |
+          if [ -n "$tag" ]; then
+            git tag -f "$tag" "$split"
+            git -c http.https://github.com/.extraheader= push --force "$TARGET" "refs/tags/$tag"
+          else
+            git -c http.https://github.com/.extraheader= push --force "$TARGET" "$split:refs/heads/main"
+          fi
+
+      # Best effort: the split repositories only change through this workflow, so this ping is the
+      # auto-update path; a missing secret or a failed ping warns and never fails the split.
+      - name: Notify Packagist
+        env:
+          PACKAGIST_AUTH: ${{ secrets.PACKAGIST_AUTH }}
+          REPOSITORY: https://github.com/${{ env.SPLIT_ORG }}/${{ env.SPLIT_PREFIX }}${{ matrix.package }}
+        run: |
+          if [ -z "$PACKAGIST_AUTH" ]; then
+            echo "::warning::PACKAGIST_AUTH is not set; Packagist is not notified for $REPOSITORY"
+            exit 0
+          fi
+          code=$(curl -s -o /tmp/packagist.json -w '%{http_code}' \
+            --config <(printf 'header = "Authorization: Bearer %s"\nheader = "Content-Type: application/json"\n' "$PACKAGIST_AUTH") \
+            -X POST https://packagist.org/api/update-package -d "{\"repository\":\"$REPOSITORY\"}")
+          if [ "$code" = 404 ]; then
+            # A package Packagist does not know yet (its first split): submit it, once.
+            code=$(curl -s -o /tmp/packagist.json -w '%{http_code}' \
+              --config <(printf 'header = "Authorization: Bearer %s"\nheader = "Content-Type: application/json"\n' "$PACKAGIST_AUTH") \
+              -X POST https://packagist.org/api/create-package -d "{\"repository\":\"$REPOSITORY\"}")
+          fi
+          case "$code" in
+            200|201|202) echo "Packagist updated $REPOSITORY (HTTP $code)" ;;
+            *) echo "::warning::Packagist returned HTTP $code for $REPOSITORY: $(cut -c1-200 /tmp/packagist.json)" ;;
+          esac
