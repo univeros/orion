@@ -9,8 +9,6 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Orion\IndexName;
 use Orion\Outbox\Dispatcher;
 use Orion\Outbox\Outbox;
-use Orion\Query\Query;
-use Orion\Wiring\Graph;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -18,22 +16,20 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
-use function array_map;
 use function is_array;
 use function is_string;
 use function json_decode;
 use function preg_match;
-use function sort;
 use function strlen;
 
 /**
- * The application's product routes. A write saves the product and records it in Orion's outbox in one transaction on
- * the application's own connection, then hands the index to the dispatcher once the transaction has committed; a
- * search goes to whichever version the alias points at, so it keeps working through a reindex.
+ * The application's product writes. A write saves the product and records it in Orion's outbox in one transaction on
+ * the application's own connection, then hands the index to the dispatcher once the transaction has committed. The
+ * search is not here: `GET /products/search` is the endpoint `api/products/search.yaml` declares, served by the
+ * Orion module through whichever version the alias points at, so it keeps working through a reindex.
  *
  *   POST   /products              {"id": "...", "title": "...", "sku": "..."}
  *   DELETE /products/{id}
- *   GET    /products/search?q=...
  *
  * A demo: put the application's authentication in front of the writes before copying it.
  */
@@ -45,7 +41,6 @@ final readonly class ProductsMiddleware implements MiddlewareInterface
 
     public function __construct(
         private DatabaseProviderInterface $databases,
-        private Graph $graph,
         private Outbox $outbox,
         private Dispatcher $dispatcher,
         private LoggerInterface $logger,
@@ -60,7 +55,6 @@ final readonly class ProductsMiddleware implements MiddlewareInterface
         return match (true) {
             $method === 'POST' && $path === '/products' => $this->save($request),
             $method === 'DELETE' && preg_match('#^/products/([A-Za-z0-9_-]{1,64})\z#', $path, $match) === 1 => $this->remove($match[1]),
-            $method === 'GET' && $path === '/products/search' => $this->search($request),
             default => $handler->handle($request),
         };
     }
@@ -112,24 +106,5 @@ final readonly class ProductsMiddleware implements MiddlewareInterface
         } catch (Throwable $failure) {
             $this->logger->warning('The products drain failed; the outbox keeps the write: {reason}', ['reason' => $failure->getMessage(), 'exception' => $failure]);
         }
-    }
-
-    private function search(ServerRequestInterface $request): ResponseInterface
-    {
-        $index = IndexName::of(self::INDEX);
-        $current = $this->graph->aliases()->current($index);
-        if ($current === null) {
-            return new JsonResponse(['error' => 'the products index is not built; run bin/altair orion:apply products'], 503);
-        }
-        $q = $request->getQueryParams()['q'] ?? '';
-        $query = Query::on(self::INDEX)->paginate(1, 100);
-        $query = is_string($q) && $q !== '' ? $query->match('title', $q) : $query;
-        // The demo reads its own writes at once; a real application lets the engine refresh on its own schedule.
-        $this->graph->engines()->get($current->engine)->flush($this->graph->aliases()->targetOf($current), await: true);
-        $result = $this->graph->searcher()->search($query);
-        $ids = array_map(static fn($hit): string => $hit->id, $result->hits);
-        sort($ids);
-
-        return new JsonResponse(['version' => $current->version, 'total' => $result->total, 'ids' => $ids]);
     }
 }

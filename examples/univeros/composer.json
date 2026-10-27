@@ -15,7 +15,8 @@
                     "orion-search/pdo": "0.1.x-dev",
                     "orion-search/cli": "0.1.x-dev",
                     "orion-search/elasticsearch": "0.1.x-dev",
-                    "orion-search/testing": "0.1.x-dev"
+                    "orion-search/testing": "0.1.x-dev",
+                    "orion-search/psr15": "0.1.x-dev"
                 }
             }
         }

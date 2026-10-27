@@ -32,14 +32,16 @@ call() { # call METHOD PATH [JSON]
 altair() { set +e; OUT=$(php bin/altair "$@"); STATUS=$?; set -e; BODY=$OUT; }
 step() { printf '%-60s %s\n' "$1" "$STATUS"; }
 expect() { if [ "$STATUS" != "$1" ]; then echo "expected $1, got $STATUS: $BODY" >&2; exit 1; fi; }
-expect_ids() { local ids; ids=$(printf '%s' "$BODY" | json ids); if [ "$ids" != "$1" ]; then echo "expected ids $1, got $ids" >&2; exit 1; fi; }
+expect_ids() { local ids; ids=$(printf '%s' "$BODY" | php -r '$d = json_decode(stream_get_contents(STDIN), true); $ids = array_map(fn($h) => $h["id"], $d["hits"] ?? []); sort($ids); echo json_encode($ids);'); if [ "$ids" != "$1" ]; then echo "expected ids $1, got $ids" >&2; exit 1; fi; }
+# The demo reads its own writes at once; a real application lets the engine refresh on its own schedule.
+search() { php bin/altair orion:flush products --json > /dev/null; call GET "$1"; }
 
 call POST /products '{"id":"p1","title":"Trail running shoe","sku":"TR-1"}'; step "1. POST /products (product + outbox entry, one transaction)"; expect 201
 call POST /products '{"id":"p2","title":"Road running shoe","sku":"RD-1"}'; step "2. POST /products"; expect 201
 call POST /products '{"id":"p3","title":"Hiking boot","sku":"HK-1"}'; step "3. POST /products"; expect 201
-call GET '/products/search?q=running'; step "4. GET /products/search?q=running"; expect 200; expect_ids '["p1","p2"]'
+search '/products/search?q=running'; step "4. GET /products/search?q=running (the manifest's endpoint)"; expect 200; expect_ids '["p1","p2"]'
 call DELETE /products/p2; step "5. DELETE /products/p2 (a tombstone, versioned)"; expect 200
-call GET '/products/search?q=running'; step "6. GET /products/search?q=running"; expect 200; expect_ids '["p1"]'
+search '/products/search?q=running'; step "6. GET /products/search?q=running"; expect 200; expect_ids '["p1"]'
 
 # A breaking change: the title's analysis. The engine cannot apply it to a live index.
 MANIFEST_BACKUP=$(mktemp); cp api/products/search.yaml "$MANIFEST_BACKUP"
@@ -49,8 +51,9 @@ altair orion:apply products --json; step "8. bin/altair orion:apply products (re
 call POST /products '{"id":"p4","title":"Trail running jacket","sku":"TR-2"}'; step "9. POST /products while the old version serves"; expect 201
 altair orion:reindex products --batch=2 --json; step "10. bin/altair orion:reindex products (replay, swap, receipt)"; expect 0
 [ "$(printf '%s' "$BODY" | json to_version)" = "2" ] || { echo "expected version 2: $BODY" >&2; exit 1; }
-call GET '/products/search?q=running'; step "11. GET /products/search?q=running (version 2, nothing lost)"; expect 200; expect_ids '["p1","p4"]'
-[ "$(printf '%s' "$BODY" | json version)" = "2" ] || { echo "expected version 2: $BODY" >&2; exit 1; }
+search '/products/search?q=running'; step "11. GET /products/search?q=running (version 2, nothing lost)"; expect 200; expect_ids '["p1","p4"]'
+altair orion:status products --json; expect 0
+[ "$(printf '%s' "$BODY" | json current.version)" = "2" ] || { echo "expected version 2: $BODY" >&2; exit 1; }
 altair orion:drift --check --json; step "12. bin/altair orion:drift --check (in sync)"; expect 0
 altair orion:prune products --grace=0 --json; step "13. bin/altair orion:prune products (drops version 1)"; expect 0
 altair orion:verify --json; step "14. bin/altair orion:verify (hashes, links, signatures, attested)"; expect 0

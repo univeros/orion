@@ -1,6 +1,14 @@
 # The products index: what Orion builds, diffs and reindexes. Change it and `bin/altair orion:drift --check` says so.
+# The search block is the endpoint the module serves: GET /products/search?q=...&filter[sku]=...&sort=-sku
 index: products
 engine: elasticsearch
 schema:
   title: { type: text, language: en }
-  sku: { type: keyword, filterable: true }
+  sku: { type: keyword, filterable: true, sortable: true }
+search:
+  endpoint: GET /products/search
+  query_fields: [title]
+  filterable: [sku]
+  sortable: [sku, _score]
+  highlight: [title]
+  page_size: 100

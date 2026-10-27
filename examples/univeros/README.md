@@ -4,9 +4,10 @@ The Univeros skeleton with `univeros/orion` on SQLite and Elasticsearch.
 
 - `.env` names the engine (`ORION_ENGINE=elasticsearch`, `ORION_ELASTICSEARCH_URL`); the module builds it.
 - `app/AppModule.php` adds the product routes.
-- `app/Products/ProductsMiddleware.php` serves the product routes. A write saves the product and its outbox entry in
-  one transaction on the application's own connection. A search reads whatever version the alias points at.
-- `api/products/search.yaml` declares the index.
+- `app/Products/ProductsMiddleware.php` serves the product writes. A write saves the product and its outbox entry in
+  one transaction on the application's own connection.
+- `api/products/search.yaml` declares the index and its endpoint. The module serves `GET /products/search` from it
+  (`q`, `filter[sku]`, `sort`, `page`, `size`), through whatever version the alias points at.
 
 ```sh
 docker run -d -p 9200:9200 -e discovery.type=single-node -e xpack.security.enabled=false elasticsearch:9.5.5
