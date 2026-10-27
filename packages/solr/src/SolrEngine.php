@@ -295,7 +295,8 @@ final class SolrEngine implements SearchAdapter, SchemaAdapter, WriteAdapter
             $flat = self::flatten($doc->fields);
             $reserved = array_values(array_intersect(array_keys($flat), Schema::INTERNAL));
             try {
-                $source = json_encode($doc->fields, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRESERVE_ZERO_FRACTION);
+                // A list is a vector here (every other field is single-valued), and no engine returns vectors in a hit.
+                $source = json_encode(self::withoutLists($doc->fields), JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRESERVE_ZERO_FRACTION);
             } catch (JsonException $invalid) {
                 $refused[$doc->id] = WriteOutcome::failed($doc->id, 'The document is not JSON: ' . $invalid->getMessage());
                 continue;
@@ -474,6 +475,23 @@ final class SolrEngine implements SearchAdapter, SchemaAdapter, WriteAdapter
         }
 
         return $settings;
+    }
+
+    /**
+     * @param array<array-key, mixed> $fields
+     * @return array<string, mixed>
+     */
+    private static function withoutLists(array $fields): array
+    {
+        $kept = [];
+        foreach ($fields as $name => $value) {
+            if (is_array($value) && array_is_list($value)) {
+                continue;
+            }
+            $kept[(string) $name] = is_array($value) ? self::withoutLists($value) : $value;
+        }
+
+        return $kept;
     }
 
     /**

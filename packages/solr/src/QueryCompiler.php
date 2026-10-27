@@ -37,6 +37,8 @@ use function is_float;
 use function is_string;
 use function json_encode;
 use function preg_match;
+use function preg_replace;
+use function rtrim;
 use function sprintf;
 use function str_starts_with;
 use function strtr;
@@ -107,7 +109,8 @@ final class QueryCompiler
             'rows' => (string) $query->page->size,
         ];
         if ($query->sorts !== []) {
-            $params['sort'] = implode(',', array_map(static fn(Sort $sort): string => $sort->field . ' ' . $sort->direction->value, $query->sorts));
+            // Relevance is Solr's `score` pseudo-field.
+            $params['sort'] = implode(',', array_map(static fn(Sort $sort): string => ($sort->field === Sort::SCORE ? 'score' : $sort->field) . ' ' . $sort->direction->value, $query->sorts));
         }
         if ($query->facets !== []) {
             $params['facet'] = 'true';
@@ -162,14 +165,32 @@ final class QueryCompiler
     private function clause(Clause $clause): string
     {
         $value = self::scalar($clause->value);
-
-        return match ($clause->kind) {
+        if ($clause->kind === ClauseKind::Match) {
             // Plain text, as the neutral match means it: dismax reads quotes, and + or - starting a word, as syntax.
-            ClauseKind::Match => sprintf('{!dismax qf=%s mm=1 v=%s}', $clause->field, $this->bind((string) preg_replace('/(^|\s)[+-]+/', '$1', strtr($value, ['"' => ' '])))),
+            // The fields and their weights are dismax's qf, bound as a parameter like every value.
+            $fields = [];
+            foreach ($clause->fields as $field => $weight) {
+                $fields[] = $weight === Clause::DEFAULT_WEIGHT ? $field : $field . '^' . self::weight($weight);
+            }
+
+            return sprintf('{!dismax qf=%s mm=1 v=%s}', $this->bind(implode(' ', $fields)), $this->bind((string) preg_replace('/(^|\s)[+-]+/', '$1', strtr($value, ['"' => ' ']))));
+        }
+        $compiled = match ($clause->kind) {
             ClauseKind::Term => sprintf('{!term f=%s v=%s}', $clause->field, $this->bind($value)),
             ClauseKind::Prefix => sprintf('{!prefix f=%s v=%s}', $clause->field, $this->bind($value)),
             ClauseKind::Phrase => sprintf('{!field f=%s v=%s}', $clause->field, $this->bind($value)),
         };
+        $weight = $clause->fields[$clause->field];
+
+        return $weight === Clause::DEFAULT_WEIGHT ? $compiled : sprintf('{!boost b=%s v=%s}', self::weight($weight), $this->bind($compiled));
+    }
+
+    /**
+     * A weight as Solr reads it: a plain decimal, never exponent notation.
+     */
+    private static function weight(float $weight): string
+    {
+        return rtrim(rtrim(sprintf('%.6F', $weight), '0'), '.');
     }
 
     /**

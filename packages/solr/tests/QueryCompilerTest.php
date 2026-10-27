@@ -7,9 +7,11 @@ namespace Orion\Solr\Tests;
 use InvalidArgumentException;
 use Orion\Adapter\UnsupportedClause;
 use Orion\Query\Direction;
+use Orion\Query\Clause;
 use Orion\Query\Filter;
 use Orion\Query\Fusion;
 use Orion\Query\Query;
+use Orion\Query\Sort;
 use Orion\Schema\FieldType;
 use Orion\Solr\QueryCompiler;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -39,18 +41,42 @@ final class QueryCompilerTest extends TestCase
     {
         $params = (new QueryCompiler())->compile(Query::on('products')->match('title', 'running')->prefix('sku', 'A')->phrase('title', 'trail shoe'));
 
-        self::assertSame('{!bool must=$o2 must=$o4 must=$o6}', $params['q']);
-        self::assertSame('{!dismax qf=title mm=1 v=$o1}', $params['o2']);
-        self::assertSame('{!prefix f=sku v=$o3}', $params['o4']);
-        self::assertSame('{!field f=title v=$o5}', $params['o6']);
-        self::assertSame(['running', 'A', 'trail shoe'], [$params['o1'], $params['o3'], $params['o5']]);
+        self::assertSame('{!bool must=$o3 must=$o5 must=$o7}', $params['q']);
+        self::assertSame('{!dismax qf=$o1 mm=1 v=$o2}', $params['o3']);
+        self::assertSame('{!prefix f=sku v=$o4}', $params['o5']);
+        self::assertSame('{!field f=title v=$o6}', $params['o7']);
+        self::assertSame(['title', 'running', 'A', 'trail shoe'], [$params['o1'], $params['o2'], $params['o4'], $params['o6']]);
     }
 
     public function testMatchTextIsPlainTextNotQuerySyntax(): void
     {
         $params = (new QueryCompiler())->compile(Query::on('products')->match('title', '"trail" +shoe -boot SKU-1'));
 
-        self::assertSame(' trail  shoe boot SKU-1', $params['o1'], 'Quotes and operators go; a hyphen inside a word stays.');
+        self::assertSame(' trail  shoe boot SKU-1', $params['o2'], 'Quotes and operators go; a hyphen inside a word stays.');
+    }
+
+    public function testRelevanceSortsBySolrsScoreField(): void
+    {
+        $params = (new QueryCompiler())->compile(Query::on('products')->sort('price')->sort(Sort::SCORE, Direction::Desc));
+
+        self::assertSame('price asc,score desc', $params['sort']);
+    }
+
+    public function testAMatchOverSeveralWeightedFieldsIsDismaxOverThem(): void
+    {
+        $params = (new QueryCompiler())->compile(Query::on('products')->match(['title' => 3.0, 'description' => 1.0], 'shoe'));
+
+        self::assertSame('{!dismax qf=$o1 mm=1 v=$o2}', $params['q']);
+        self::assertSame('title^3 description', $params['o1']);
+    }
+
+    public function testAWeightedClauseIsBoosted(): void
+    {
+        $params = (new QueryCompiler())->compile(Query::on('products')->term('sku', 'A1')->withClauses([Clause::term('sku', 'A1')->weighted(['sku' => 2.5])]));
+
+        self::assertSame('{!boost b=2.5 v=$o2}', $params['q']);
+        self::assertSame('{!term f=sku v=$o1}', $params['o2']);
+        self::assertSame('A1', $params['o1']);
     }
 
     public function testFiltersAreFilterQueries(): void
