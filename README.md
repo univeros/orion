@@ -85,10 +85,12 @@ hash-chained receipts, `bin/orion`, the determinism, fault-injection, tenancy-is
 harnesses, tenancy on a shared index with the tenant from the Polaris token, the `search:` manifest with its index and
 endpoint declarations, the endpoints served over PSR-15 and by the Univeros module, the agent surface (`compile_query`
 and the other core tools, as `orion__*` on the framework's MCP server), and a demo host with a walkthrough
-(`examples/univeros`). Every work package of the specification is done and version 1.0.0 is tagged in this
-monorepo, with CI green on every engine. Progress is tracked as epics in the repository's issues.
-The per-package read-only repositories (`univeros/orion.<package>`) and their Packagist registration are the
-next step; until then, install from a clone with path repositories, as `examples/univeros` does.
+(`examples/univeros`). Every work package of the specification is done, with CI green on every engine. Progress is
+tracked as epics in the repository's issues.
+
+Every package is split from this monorepo into its own read-only repository (`univeros/orion.<package>`, the module
+as `univeros/orion.univeros`) and published on Packagist, so `composer require orion-search/core` works as for any
+package. Issues and pull requests go to this repository.
 
 ## Documentation
 

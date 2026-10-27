@@ -5,7 +5,7 @@ Orientation for coding agents working in this repository. Read this before editi
 Orion is deterministic, replayable index operations for any full-text engine (Elasticsearch, Solr, OpenSearch,
 Meilisearch), with a thin hybrid query layer, for any PHP application. It is built the way `polaris-core` is:
 a framework-free core with ports and working defaults, host integrations as packages, one monorepo
-split-published later. The Univeros module lives here too, as `packages/univeros`.
+split-published to `univeros/orion.<package>` and Packagist by `.github/workflows/split.yml`. The Univeros module lives here too, as `packages/univeros`.
 
 ## Where things are decided
 
@@ -62,7 +62,9 @@ split-published later. The Univeros module lives here too, as `packages/univeros
   with tombstones, writes as awaited tasks, aliases emulated by core, lexical clauses as filters on shadow attributes,
   vectors as user-provided embeddings, hybrid fusion left to core; nothing leaked upward into the ports.
 - **1.0.0** (2026-10-27): every work package done, CI green on every engine since the repository went public, the
-  version line at `^1.0` / `1.x-dev`. Next: the per-package read-only repositories and Packagist.
+  version line at `^1.0` / `1.x-dev`.
+- **1.0.1** (2026-10-27): the user guides (`docs/guides`); every package split to its read-only repository and
+  published on Packagist. Every push to `main` and every `v*` tag updates the splits and pings Packagist.
 - Local services for the conformance and determinism suites: `docker compose up -d`, then export `.env.testing`.
 
 ## The rules

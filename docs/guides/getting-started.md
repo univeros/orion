@@ -29,11 +29,6 @@ Then one engine adapter per engine you run. Each brings its own client:
 
 The in-memory engine used below ships with `orion-search/core`; nothing else is needed for it.
 
-> Until the packages are published on Packagist, install them from a clone of
-> [univeros/orion](https://github.com/univeros/orion) with a Composer `path` repository pointing at its
-> `packages/*`, and require them as `^1.0@dev`. [`examples/univeros/composer.json`](../../examples/univeros/composer.json)
-> is a working example.
-
 ## Wire Orion
 
 `Orion::create()` takes a `Config` and builds everything else. Three settings have no default because each one is
