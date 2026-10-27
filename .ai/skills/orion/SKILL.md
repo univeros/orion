@@ -28,6 +28,9 @@ default except storage, engines and tenancy, which are explicit. Hosts bind port
   the registered schema (`Binder`) and fuses hybrid queries in core; adapters compile what they are given.
 - The `search:` manifest's `search` block is the endpoint: `orion-search/psr15` serves it, the module mounts it behind
   `RequestToken`; a request may only name what the endpoint declares, the endpoint only what the schema flags.
+- The agent surface is `Orion\Tools` (framework-free; `compile_query` shows what `search()` would send, through the
+  same binding and scope, and sends nothing). A host adapts those tools, keeping their names, descriptions and
+  schemas; no tool constructs a schema, and `apply`/`reindex` do nothing without `confirm`.
 - Lifecycle is deterministic; ranking is not. Do not write code or docs that claim otherwise.
 
 ## Working

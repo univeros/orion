@@ -73,14 +73,15 @@ bin/orion outbox:drain && bin/orion verify --json
 
 ## Status
 
-Work packages 0 to 8 are done: the core ASTs and contracts, storage on PDO, the engine conformance suite, the dev
+Work packages 0 to 9 are done: the core ASTs and contracts, storage on PDO, the engine conformance suite, the dev
 in-memory engine, the Elasticsearch and Solr adapters, the schema lifecycle (plan, apply, versioned indices behind an
 alias, the index registry), the transactional outbox and its drain, zero-downtime reindex by replay, signed
 hash-chained receipts, `bin/orion`, the determinism, fault-injection, tenancy-isolation and query-equivalence
 harnesses, tenancy on a shared index with the tenant from the Polaris token, the `search:` manifest with its index and
-endpoint declarations, the endpoints served over PSR-15 and by the Univeros module, and a demo host with a walkthrough
-(`examples/univeros`). Work package 9 (the MCP tools) is next; progress is tracked as epics in the repository's
-issues.
+endpoint declarations, the endpoints served over PSR-15 and by the Univeros module, the agent surface (`compile_query`
+and the other core tools, as `orion__*` on the framework's MCP server), and a demo host with a walkthrough
+(`examples/univeros`). Work package 10 (the OpenSearch adapter) is next; progress is tracked as epics in the
+repository's issues.
 Nothing is published yet. This repository is the monorepo; each package will be split to a read-only
 repository for Composer when the first tag is cut.
 

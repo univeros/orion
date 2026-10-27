@@ -54,6 +54,16 @@ to [Semantic Versioning](https://semver.org/). Every package shares one version 
   `ActiveOrganization`; in `univeros/orion`, tenancy from univeros/polaris through `Http\RequestToken`, the bound
   `Searcher`, and `ORION_ENGINE=elasticsearch` with `ORION_ELASTICSEARCH_URL`.
 
+- WP9: the agent surface in core (`Orion\Tools`: the `Tool` contract, `Tools::for()`, `ListIndices`, `DescribeIndex`,
+  `Capabilities`, `CompileQuery`, `Search`, `Plan`, and the gated `Apply` and `Reindex`, which preview until `confirm`;
+  `QuerySchema`, the JSON schema of a query's declarative form); `Searcher::compile()` and `Query\Compilation` (the
+  request `search()` would send, bound and scoped, with the two legs and the fusion when core fuses, never sent);
+  the `Adapter\QueryCompiling` port, implemented by the in-memory, Elasticsearch and Solr engines and checked by the
+  conformance case; `ResultSet::toArray()`, `Hit::toArray()`, `FusionTrace::toArray()`; in `univeros/orion`, the
+  `orion__*` MCP tools (`Mcp\OrionTool` and one adapter per core tool with its `#[McpTool]` attribute and schema
+  file, `Mcp\McpTools`) registered on the framework's `ToolRegistry` so `bin/altair mcp:serve` offers them, a
+  confirmed `apply` or `reindex` needing `--allow-writes`; the tools in the agent manifest section; `FaultyEngine::claim()`;
+  the demo walkthrough calling `orion__compile_query` over stdio.
 - WP8: `orion-search/psr15`, the `search:` endpoints as a PSR-15 middleware (`SearchMiddleware`, `SearchHandler`,
   `SearchRequest`, `Envelope`, RFC 9457 `Problem`s, the `Authorizer` port, `RequestTenant`); the manifest's `search`
   (`Manifest\Endpoint`) and `source` (`Manifest\Source`) keys and the `Projection\Projector` contract;
@@ -73,6 +83,12 @@ to [Semantic Versioning](https://semver.org/). Every package shares one version 
   in `compose.yaml` and CI.
 
 ### Changed
+- WP9: `Orion\Psr15\Envelope` composes the response over `ResultSet::toArray()` (same bytes). The searcher's
+  `search()` and `compile()` share the binding, window, scope and leg logic, so what `compile_query` shows is what
+  `search()` sends. The engine conformance case requires every engine to be a `QueryCompiling`. The root's
+  `autoload-dev` maps `Altair\Mcp\` to verbatim copies of the univeros/mcp v2.6.0 contracts under
+  `packages/univeros/tests/Stubs` (univeros/mcp cannot be installed beside the Elasticsearch 9 client); a host with the
+  real package never reads them.
 - WP8: no engine returns vector fields in a hit's source (the in-memory engine strips them, Solr leaves them out of
   its stored source, the Elasticsearch mapping excludes them from `_source` so 8.19 answers as 9 does); Solr compiles the neutral `_score` sort to its `score` field; the
   conformance case pins both and a `match` over several fields. The in-memory engine no longer applies the schema's

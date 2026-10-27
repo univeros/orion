@@ -49,7 +49,11 @@ split-published later. The Univeros module lives here too, as `packages/univeros
   keys; `orion-search/psr15` serving the declared endpoints with RFC 9457 problems; the module serving them behind
   `RequestToken` with the Polaris `Gate`; the endpoint fixtures through both harnesses and on every engine; the
   property-based query equivalence suite green on Elasticsearch and Solr.
-- **WP9 is next**: MCP tools in core, `compile_query` first. See `docs/spec/revision.md` §7.
+- **WP9 complete** (2026-10-27): the agent surface in core (`Orion\Tools`: `compile_query`, `search`, `list_indices`,
+  `describe_index`, `capabilities`, `plan`; `apply` and `reindex` previewing until `confirm`), `Searcher::compile()`
+  over the engines' `QueryCompiling` port (the request `search()` would send, bound and scoped, never sent), and the
+  module's `orion__*` adapters on the framework's MCP server (`mcp:serve`, `--allow-writes` for a confirmed mutation).
+- **WP10 is next**: the OpenSearch adapter. See `docs/spec/revision.md` §7.
 - Local services for the conformance and determinism suites: `docker compose up -d`, then export `.env.testing`.
 
 ## The rules
