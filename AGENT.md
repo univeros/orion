@@ -92,7 +92,8 @@ split-published later. The Univeros module lives here too, as `packages/univeros
 ## How to work a work package
 
 1. Read `docs/spec/revision.md` §7 for the WP's scope and acceptance criteria.
-2. Work on `main` directly, or on a local `wpN` branch fast-forwarded into `main`. No pull requests.
+2. Work on a branch (`wpN`, `docs/…`, `fix/…`) and land it on `main` through a pull request, so CI runs before it
+   merges (from 2026-10-27; earlier work landed on `main` directly).
 3. Write the failing test, then the smallest change that meets the criteria; run `composer qa` continuously.
 4. Record decisions in `docs/decisions.md`, append only.
 5. Commit in coherent steps, conventional format (`feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:`),

@@ -25,6 +25,7 @@ Two honest sentences: the lifecycle is deterministic and provably so; ranking is
 | `orion-search/solr` | `Orion\Solr\` | Engine adapter for SolrCloud 9.x and 10.x. |
 | `orion-search/opensearch` | `Orion\OpenSearch\` | Engine adapter for OpenSearch 2.19 and 3.x. |
 | `orion-search/meilisearch` | `Orion\Meilisearch\` | Engine adapter for Meilisearch 1.13 and later. |
+| `orion-search/psr15` | `Orion\Psr15\` | The `search:` endpoints a manifest declares, served as PSR-15 middleware, with RFC 9457 problems. |
 | `orion-search/polaris` | `Orion\Polaris\` | Tenancy from Polaris: the tenant is the active organization on the verified token. |
 | `univeros/orion` | `Univeros\Orion\` | The Univeros module: one line in `config/modules.php`; storage on the host's Cycle connection, migration, `orion:*` commands, doctor checks. |
 
@@ -45,7 +46,8 @@ $graph->planner('elasticsearch')->apply($schema);      // creates products_v1 be
 
 $pdo->beginTransaction();                              // your write and its outbox entry, one transaction
 saveProduct($pdo, $product);
-$graph->outbox()->index(IndexName::of('products'), $product->id, $projector->project($product));
+$document = $projector->project($product);              // an Orion\Write\Document
+$graph->outbox()->index(IndexName::of('products'), $document->id, $document->fields);
 $pdo->commit();
 $graph->dispatcher()->dispatch(IndexName::of('products'));   // drain now, or let `orion outbox:drain` do it
 
@@ -90,6 +92,9 @@ next step; until then, install from a clone with path repositories, as `examples
 
 ## Documentation
 
+- [`docs/guides/`](docs/guides/README.md) — the user guides: start with
+  [Getting started](docs/guides/getting-started.md).
+- [`docs/README.md`](docs/README.md) — the documentation index: guides, packages, specification, decisions.
 - [`docs/spec/orion-spec.md`](docs/spec/orion-spec.md) — the product specification.
 - [`docs/spec/revision.md`](docs/spec/revision.md) — the framework-agnostic layout and the work packages.
 - [`docs/decisions.md`](docs/decisions.md) — the decisions log.
