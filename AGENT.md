@@ -43,8 +43,13 @@ split-published later. The Univeros module lives here too, as `packages/univeros
   from the Polaris token, and the module wires it when univeros/polaris is configured.
 - **WP7 complete** (2026-10-26): `orion-search/solr` for SolrCloud 9.x and 10.x, passing engine conformance, tenancy
   isolation, determinism and fault injection on both; the neutral schema needed no Lucene-shaped change.
-- **WP8 is next**: query and fusion hardening, the PSR-15 endpoint and the `search:` endpoints. See
-  `docs/spec/revision.md` §7.
+- **WP8 complete** (2026-10-26): the query bound to the registered schema (`Binder`: fields, flags, value types,
+  query-time boosts) and fused in core (reciprocal rank across the scoped legs) by the `Searcher`; a `match` over
+  several weighted fields; the offset window refused as `UnsupportedClause`; the manifest's `search` and `source`
+  keys; `orion-search/psr15` serving the declared endpoints with RFC 9457 problems; the module serving them behind
+  `RequestToken` with the Polaris `Gate`; the endpoint fixtures through both harnesses and on every engine; the
+  property-based query equivalence suite green on Elasticsearch and Solr.
+- **WP9 is next**: MCP tools in core, `compile_query` first. See `docs/spec/revision.md` §7.
 - Local services for the conformance and determinism suites: `docker compose up -d`, then export `.env.testing`.
 
 ## The rules
@@ -87,7 +92,7 @@ split-published later. The Univeros module lives here too, as `packages/univeros
 packages/core/{src,tests}        orion-search/core      Orion\            the framework-free core (revision.md §6)
 packages/testing/src             orion-search/testing   Orion\Testing\    in-memory storage, conformance cases, fakes
 packages/<engine>                orion-search/<engine>  one engine adapter each, own client dependency (from WP2)
-packages/pdo, psr15, cli, polaris                       storage, HTTP, bin/orion, Polaris tenancy bridge (WP2, WP8, WP4, WP6)
+packages/pdo, psr15, cli, polaris                       storage, the search: endpoints over PSR-15, bin/orion, Polaris tenancy bridge
 packages/univeros                univeros/orion         Univeros\Orion\   the Univeros module
 examples/univeros                                        the demo host: bin/setup, bin/walkthrough.sh (needs Elasticsearch)
 docs/                            spec, revision, decisions

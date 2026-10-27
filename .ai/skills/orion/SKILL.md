@@ -24,7 +24,10 @@ default except storage, engines and tenancy, which are explicit. Hosts bind port
 - Tenancy is chosen explicitly; `TenantScope` applies to every compiled query, escape hatch included. Query through `Graph::searcher()`, never an adapter directly: it injects the tenant filter, and `NoUnscopedQueryPathTest` fails on any new public path that takes a `Query` outside it. Under a resolver every index declares an org key.
 - Unknown schema change is breaking; unsupported clause is `UnsupportedClause`; missing capability is routed
   around or refused, never silently wrong.
-- Adapters implement primitives only. Orchestration in an adapter is a core bug.
+- Adapters implement primitives only. Orchestration in an adapter is a core bug. The `Searcher` binds every query to
+  the registered schema (`Binder`) and fuses hybrid queries in core; adapters compile what they are given.
+- The `search:` manifest's `search` block is the endpoint: `orion-search/psr15` serves it, the module mounts it behind
+  `RequestToken`; a request may only name what the endpoint declares, the endpoint only what the schema flags.
 - Lifecycle is deterministic; ranking is not. Do not write code or docs that claim otherwise.
 
 ## Working

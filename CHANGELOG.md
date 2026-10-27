@@ -54,11 +54,31 @@ to [Semantic Versioning](https://semver.org/). Every package shares one version 
   `ActiveOrganization`; in `univeros/orion`, tenancy from univeros/polaris through `Http\RequestToken`, the bound
   `Searcher`, and `ORION_ENGINE=elasticsearch` with `ORION_ELASTICSEARCH_URL`.
 
+- WP8: `orion-search/psr15`, the `search:` endpoints as a PSR-15 middleware (`SearchMiddleware`, `SearchHandler`,
+  `SearchRequest`, `Envelope`, RFC 9457 `Problem`s, the `Authorizer` port, `RequestTenant`); the manifest's `search`
+  (`Manifest\Endpoint`) and `source` (`Manifest\Source`) keys and the `Projection\Projector` contract;
+  `Manifest::endpoints()`; a `match` over several weighted fields (`Query::match()` with a list or weights by field,
+  `Clause::$fields`, `weighted()`, `fieldNames()`; `fields` and `boost` in the declarative form); `Query\Binder`, the
+  query bound to the registered schema (fields, flags, value types, query-time boosts) by the searcher; core
+  reciprocal-rank fusion of hybrid queries in the `Searcher` (`lexicalLeg()`, `vectorLeg()`, `withClauses()`,
+  `Searcher::FUSION_WINDOW`); `Page::WINDOW`, `Page::depth()` and `UnsupportedClause::deepPaging()`;
+  `IndexSchema::fieldAt()`; in `univeros/orion`, `Http\SearchEndpoints`, `Http\GateAuthorizer`, one route per endpoint
+  and the endpoints in the agent manifest section; in `orion-search/testing`, the endpoint harness and fixtures
+  (`Endpoint\EndpointFixtureTestCase`, `Harness`, `Fixture`, `fixtures/manifests`, `fixtures/endpoints`) and the
+  property-based query equivalence case (`Equivalence\QueryEquivalenceTestCase`, `QueryGenerator`, `Seeded`);
+  `FaultyEngine` kills searches too; the demo serves its search from the manifest's endpoint. Endpoint responses
+  carry `Cache-Control: private, no-store`; a `q` is at most 64 words and a sort names each field once.
 - WP7: `orion-search/solr`, the SolrCloud 9.x and 10.x adapter (`SolrEngine`, `QueryCompiler`, `NativeScope`, `Schema`,
   `Configset` with Orion's configset); `ORION_ENGINE=solr` with `ORION_SOLR_URL` in `univeros/orion`; Solr 10 and 9.11
   in `compose.yaml` and CI.
 
 ### Changed
+- WP8: no engine returns vector fields in a hit's source (the in-memory engine strips them, Solr leaves them out of
+  its stored source, the Elasticsearch mapping excludes them from `_source` so 8.19 answers as 9 does); Solr compiles the neutral `_score` sort to its `score` field; the
+  conformance case pins both and a `match` over several fields. The in-memory engine no longer applies the schema's
+  boost itself: the searcher's binding does, for every engine. A query naming an undeclared field, a field not flagged
+  for the use, a value of the wrong type, or a page past 10 000 results is refused by the searcher before any engine
+  sees it. The isolation case gains hybrid queries.
 - WP7: the engine conformance case also requires that a deleted document is found by no query, that missing sort
   values come last either way, that only a matching field is highlighted, that `match` on a keyword finds the whole
   value, that term filters read values as their fields declare, and that `exists` works on an object.
