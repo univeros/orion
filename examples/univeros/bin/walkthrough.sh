@@ -62,4 +62,25 @@ altair doctor --only=orion_engine_reachable,orion_registry_current,orion_schema_
 step "15. bin/altair doctor --only=orion_* (seven checks, all ok)"; expect 0
 OK=$(printf '%s' "$BODY" | php -r '$d = json_decode(stream_get_contents(STDIN), true); $ok = array_filter($d["checks"] ?? [], fn($c) => $c["status"] === "ok"); echo count($ok), "/", count($d["checks"] ?? []);')
 [ "$OK" = "7/7" ] || { echo "expected 7/7 Orion checks ok, got $OK: $BODY" >&2; exit 1; }
+
+# The agent surface: the orion__* tools on the framework's MCP server, and compile_query answering over stdio with the
+# request Elasticsearch would receive, without running it.
+altair mcp:tools --format=json; step "16. bin/altair mcp:tools (the orion__* tools are listed)"; expect 0
+printf '%s' "$BODY" | grep -q '"orion__compile_query"' || { echo "orion__compile_query is not listed: $BODY" >&2; exit 1; }
+MCP=$(printf '%s\n%s\n' \
+    '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"walkthrough","version":"0"}}}' \
+    '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"orion__compile_query","arguments":{"index":"products","query":[{"type":"match","field":"title","value":"running"}]}}}' \
+    | php bin/altair mcp:serve); STATUS=$?; BODY=$MCP
+step "17. mcp:serve tools/call orion__compile_query (native DSL, not executed)"; expect 0
+printf '%s' "$BODY" | grep -q '"isError":false' || { echo "expected a tool result, got an error: $BODY" >&2; exit 1; }
+printf '%s' "$BODY" | grep -q '"body":{"from":0,"size":20,"query":{"bool":{"must":\[{"match":{"title":{"query":"running"}}}\]}}}' || { echo "expected the compiled Elasticsearch body: $BODY" >&2; exit 1; }
+# A confirmed mutation is refused unless the server started with --allow-writes; with it, the in-sync index is unchanged.
+mcp_apply() { printf '%s\n%s\n' \
+    '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"walkthrough","version":"0"}}}' \
+    '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"orion__apply","arguments":{"index":"products","confirm":true}}}' \
+    | php bin/altair mcp:serve "$@"; }
+BODY=$(mcp_apply); STATUS=$?; step "18. tools/call orion__apply confirm:true without --allow-writes (refused)"; expect 0
+printf '%s' "$BODY" | grep -q '"isError":true' && printf '%s' "$BODY" | grep -q -- '--allow-writes' || { echo "expected the guardrail: $BODY" >&2; exit 1; }
+BODY=$(mcp_apply --allow-writes); STATUS=$?; step "19. tools/call orion__apply confirm:true with --allow-writes (unchanged)"; expect 0
+printf '%s' "$BODY" | grep -q '"operation":"unchanged"' || { echo "expected an unchanged apply: $BODY" >&2; exit 1; }
 echo "Walkthrough complete."

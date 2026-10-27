@@ -13,7 +13,7 @@ The Univeros skeleton with `univeros/orion` on SQLite and Elasticsearch.
 docker run -d -p 9200:9200 -e discovery.type=single-node -e xpack.security.enabled=false elasticsearch:9.5.5
 composer install
 bin/setup            # .env with a new receipt key, db:migrate, orion:apply products
-bin/walkthrough.sh   # write, search, delete, breaking change, reindex while writing, prune, verify, doctor
+bin/walkthrough.sh   # write, search, delete, breaking change, reindex while writing, prune, verify, doctor, MCP
 ```
 
 The walkthrough runs these steps:
@@ -25,6 +25,9 @@ The walkthrough runs these steps:
   search then finds every product on version 2.
 - **Cleanup.** It prunes version 1.
 - **Checks.** It verifies the receipt chain and requires all seven Orion doctor checks to be ok.
+- **The agent surface.** `bin/altair mcp:tools` lists the `orion__*` tools, and a `tools/call` of
+  `orion__compile_query` over `mcp:serve`'s stdio answers with the Elasticsearch body the query would send, without
+  running it.
 
 To run it again from scratch:
 
