@@ -9,6 +9,10 @@ to [Semantic Versioning](https://semver.org/). Every package shares one version 
 ### Fixed
 - `bin/orion --version` printed `0.1.0` in every release; it prints the package version, `1.0.2`.
 
+### Changed
+- Every package is published on Packagist from its split repository (`univeros/orion.<package>`): the README and the
+  getting-started guide drop the install-from-a-clone note.
+
 ## [1.0.1] - 2026-10-27
 
 Documentation only: no code or test changed.
